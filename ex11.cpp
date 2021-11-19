@@ -53,7 +53,7 @@ int main(int argc, char* argv[]){
 
     for (int i=0; i < size/3; i++){
         mean_error = mean_error + pow((mean_ori[i]-mean_noise[i]),2);
-        if (pow((mean_ori[i]-mean_noise[i]),2) > max_error) max_error = pow((mean_ori[i]-mean_noise[i]),2);
+        if (abs(mean_ori[i]-mean_noise[i]) > max_error) max_error = abs(mean_ori[i]-mean_noise[i]);
     }
     mean_error = mean_error/(size/3);  // MSE 1/N * SUM((Ori-Noise)*(Ori-Noise))
     float snr = 10*log10(max_val*max_val/mean_error);  //  PSNR = 10log(A*A/e*e)
