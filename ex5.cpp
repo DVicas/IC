@@ -7,6 +7,11 @@ using namespace std;
 
 
 int main(int argc, char* argv[]){
+
+    if(argc!=2){
+        cout<<"WRONG NUMBER OF ARGUMENTS!"<<endl;
+        return 1;
+    }
     ifstream ifs(argv[1]);
     char ch;
     map<char,int> letters;
