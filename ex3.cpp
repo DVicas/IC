@@ -20,14 +20,14 @@ int main(int argc, char *argv[]) {
     fin = sf_open(argv[1], SFM_READ, &inf);
     if (fin == NULL) {
         sf_close (fin) ;
-		printf ("Could not open input file\n") ;
+		cout << "Could not open input file" << endl;
 		return -1;
     }
 
     // Check file format
     if (!sf_format_check (&inf)) {	
         sf_close (fin) ;
-		printf ("Invalid encoding\n") ;
+		cout << "Invalid encoding" << endl;
 		return -1;
 	};
     
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     fout = sf_open(argv[2], SFM_WRITE, &inf);
     if (fout == NULL) {
         sf_close (fout) ;
-		printf ("Could not open output file\n") ;
+		cout << "Could not open output file" << endl;
 		return -1;
     }
 
