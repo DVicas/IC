@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     if (argc != 3) cout << "Wrong arguments" << endl;
     SNDFILE *fin, *fout;
     SF_INFO inf;
-    int readcount;
+    short readcount;
 
     // Open input file
     inf.format = 0;
@@ -24,8 +24,7 @@ int main(int argc, char *argv[]) {
 		return -1;
     }
 
-    // Define file format and check
-    inf.format = SF_FORMAT_WAV | SF_FORMAT_PCM_32;
+    // Check file format
     if (!sf_format_check (&inf)) {	
         sf_close (fin) ;
 		printf ("Invalid encoding\n") ;
@@ -41,9 +40,10 @@ int main(int argc, char *argv[]) {
     }
 
     // Read input file frame by frame and write to output 
-    float buffer[inf.frames*inf.channels];
-    while ((readcount = (int) sf_readf_float(fin, buffer, 1)) > 0)
-		sf_writef_float (fout, buffer, readcount) ;
+    // buffer_size = frames_to_read * channels, we only want 1 frame at a time so buffer_size = 1 * channels
+    short buffer[inf.channels];                             
+    while ((readcount = (short) sf_readf_short(fin, buffer, 1)) > 0)
+		sf_writef_short (fout, buffer, readcount) ;
 
     sf_close(fin);
     sf_close(fout);
