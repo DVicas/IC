@@ -1,0 +1,21 @@
+ex8
+
+O objetivo deste exercício consistia em reduzir o número de bits utilizados para 
+representar cada sample de audio, para isso o código desenvolvido recebe como argumento
+um ficheiro .WAV e de seguida itera sobre todos os samples que constituem o ficheiro 
+fazendo shift à direita de n bits de cada sample, procedidos de shift à esquerda n bits, 
+novamente. 
+Desta forma apesar de o número de bits do ficheiro se manter constante, o número de 
+bits que codificam informação diminui.
+
+
+ex3
+
+Foi nos pedido que fosse feito um programa que recebesse dois argumentos de entrada, 
+correspondentes ao nome do ficheiro .WAV de entrada e nome para o ficheiro de saída.
+O programa começa por abrir o ficheiro de entrada em modo de leitura, verifica a 
+se o formato não apresenta erros, de seguida abre o ficheiro de saída, em modo de escrita,
+e com uma cópia do ficheiro a ser copiado. Foi criado um buffer com 2 posições, 
+correspondentes ao left channel e right channel, uma vez que o ficheiro irá ser copiado
+sample a sample não há necessidade de um buffer maior.
+ 
