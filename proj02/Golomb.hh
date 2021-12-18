@@ -8,22 +8,25 @@ using namespace std;
 
 class Golomb {
     public:
-        Golomb();
-        void EncodeNumbers(int i, int m);
-        void DecodeNumbers(int m);
-
+        Golomb(int n, int x);
+        void EncodeNumbers();
+        void DecodeNumbers();
+    private:
+        int i;
+        int m;
 };
 
-Golomb::Golomb() {
-
+Golomb::Golomb(int n, int x) {
+    i = n;
+    m = x;
 }
 
-void Golomb::EncodeNumbers(int i, int m) {   
+void Golomb::EncodeNumbers() {   
     int q, r;
     string str = string(); 
 
-    if (i>=0) i = i*2;
-    else i = i*(-2)-1;
+    //if (i>=0) i = i*2;
+    //else i = i*(-2)-1;
 
     q = floor(i/m);
     r = i - q*m;
@@ -82,6 +85,6 @@ void Golomb::EncodeNumbers(int i, int m) {
     
 }
 
-void Golomb::DecodeNumbers(int m) {
+void Golomb::DecodeNumbers() {
 
 }
