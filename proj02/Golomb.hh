@@ -5,23 +5,23 @@
 #include <bitset>
 
 using namespace std;
+int bin2d(int);
 
 class Golomb {
     public:
-        Golomb(int n, int x);
-        void EncodeNumbers();
-        void DecodeNumbers();
+        Golomb();
+        void EncodeNumbers(int i, int m);
+        int DecodeNumbers(string code, int m);
     private:
         int i;
         int m;
 };
 
-Golomb::Golomb(int n, int x) {
-    i = n;
-    m = x;
+Golomb::Golomb() {
+
 }
 
-void Golomb::EncodeNumbers() {   
+void Golomb::EncodeNumbers(int i, int m) {   
     int q, r;
     string str = string(); 
 
@@ -85,6 +85,39 @@ void Golomb::EncodeNumbers() {
     
 }
 
-void Golomb::DecodeNumbers() {
+int Golomb::DecodeNumbers(string bits, int m) {
+    
+    cout << "codeword: " << bits << endl;
+    cout << "m: " << m << endl;
+    
+    int k = ceil(log2(m));
+    int t = pow(2, k) - m;
+    int s;
+    int r2;
 
+    int sep = (int) bits.find("1");
+    string in_q = bits.substr(0, sep);
+    string in_r = bits.substr(sep + 1);
+    //quotient
+    int q = in_q.size();
+    //store and remove last bit (of the remainder) to have k - 1 bits
+    char last = in_r.back(); 
+    int l_bit = last - '0';
+    in_r.pop_back(); 
+    int r = stoi(in_r, 0, 2);//decimal conversion of the k - 1 bits
+    
+    if(r < t){
+        s = q * m + r;
+    }else{
+        r2 = r * 2 + l_bit;
+        s = q * m + r2 - t;
+        r = r + l_bit;
+    }    
+    
+    cout << "q: " << q << endl;
+    cout << "r: " << r << endl;
+    cout << "s: " << s << endl;
+
+
+    return 0;
 }
