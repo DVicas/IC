@@ -10,13 +10,11 @@ class Golomb {
     public:
         Golomb();
         void EncodeNumbers(int i, int m);
-        void DecodeNumbers(int m);
+        int DecodeNumbers(string bits, int m);
 
 };
 
-Golomb::Golomb() {
-
-}
+Golomb::Golomb() { }
 
 void Golomb::EncodeNumbers(int i, int m) {   
     int q, r;
@@ -42,6 +40,33 @@ void Golomb::EncodeNumbers(int i, int m) {
     
 }
 
-void Golomb::DecodeNumbers(int m) {
+int Golomb::DecodeNumbers(string bits, int m) {
+    
+    cout << "Bits: " << bits << endl;
+    cout << "m: " << m << endl;
+    
+    int b, x;
 
+    int sep = (int) bits.find(" ");
+    string in_q = bits.substr(0, sep);
+    string in_r = bits.substr(sep+1);
+
+    int q = in_q.size() - 1 ;
+        
+    int r = 0; 
+    int n = 0;
+    string::iterator it;
+    for(it = in_r.begin(); it != in_r.end(); it++) {
+        if(*it == '1') {
+            r += pow(2, n);
+        }
+        n++;
+    }
+
+    cout << "q: " << q << endl;
+    cout << "r: " << r << endl;
+
+    x = pow(b, 2);
+
+    return 0;
 }
