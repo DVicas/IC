@@ -1,12 +1,12 @@
-#include "Golomb.h"
+#include "Golomb.hh"
 
 using namespace std;
 
 int main() {
 
-    Golomb g;
+    Golomb g(11, 4);
 
-    g.EncodeNumbers(11, 4);
+    g.EncodeNumbers();
 
     return 0;
 }
