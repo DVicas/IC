@@ -112,7 +112,11 @@ int Golomb::DecodeNumbers(string bits, int m) {
         r2 = r * 2 + l_bit;
         s = q * m + r2 - t;
         r = r + l_bit;
-    }    
+    }
+
+    if (ceil(log2(m)) == floor(log2(m))) {
+        r = s - q*m;
+    }
     
     cout << "q: " << q << endl;
     cout << "r: " << r << endl;
