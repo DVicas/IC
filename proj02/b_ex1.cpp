@@ -11,6 +11,7 @@
 using namespace std;
 
 void predictor(char* audio_file);
+int folding(short residual);
 int calculate_m(int sum, int num_items);
 void encode(int num_items, short* error_buffer, int m);
 void histograms(short* buffer, short* error_buffer, int num_items);
@@ -27,6 +28,7 @@ int main(int argc, char* argv[]){
 //reads audio file, creates single channel (avg of stereo), predicts and calculates
 //the residual values and calculates optimal m; it then encodes the value
 //with its respective golomb code and writes to file using made classes
+
 void predictor(char* audio_file){
     
     SNDFILE* file;
@@ -58,8 +60,11 @@ void predictor(char* audio_file){
             f_ = 0;
         }  
         error_buffer[i] = mono_buffer[i] - f_;
-        sum += abs(error_buffer[i]); //mal
-        //cout << "Residual -> " << error_buffer[i] << " Fn -> " << buffer[i] << endl;
+
+        //folding
+        error_buffer[i] = folding(error_buffer[i]);
+
+        sum += error_buffer[i]; 
     }
 
     //calculating histograms and entropy
@@ -71,12 +76,20 @@ void predictor(char* audio_file){
 
 }
 
+int folding(short residual){
+    //folding to get positive values only
+    if (residual >= 0) residual = residual * 2;   
+    else residual = residual * (-2) - 1;
+
+    return residual;
+}
+
 int calculate_m(int sum, int num_items){
     //calculating the mean to find the "optimal" m -> log2(log(2) * (mean / sqrt(2)))
-    double mean = (double) sum / num_items; //what if the mean is negative?
+    double mean = (double) sum / num_items; 
     int m = log2(log(2) * (mean / sqrt(2)));
     cout << "-----------MEAN----------" << endl;
-    cout << mean << endl;
+    cout << "mean -> " << mean << endl;
     cout << "--------OPTIMAL M--------" << endl;  
     cout << "optimal m -> " << m << endl;
 
@@ -86,7 +99,7 @@ int calculate_m(int sum, int num_items){
 void encode(int num_items, short* error_buffer, int m){
     //for each value in the error buffer, calculate the golomb code and write to file via bitstream
     Golomb g;
-    BitStream bstream(" ", "golomb_output.wav");
+    BitStream bstream(" ", "golomb_output.txt");
     string code;
 
     for(int i = 0; i < num_items; i++){
@@ -98,7 +111,7 @@ void encode(int num_items, short* error_buffer, int m){
 }
 
 void histograms(short* buffer, short* error_buffer, int num_items){
-    //HISTOGRAMS
+    //calculating histograms and respective entropies, being the error_buffer < buffer
     map<short,int> error_buff_histo;
     map<short,int> buff_histo;
     map<short,int>::iterator it;

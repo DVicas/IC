@@ -25,9 +25,6 @@ string Golomb::EncodeNumbers(int i, int m) {
     int q, r;
     string str = string(); 
 
-    if (i>=0) i = i*2;
-    else i = i*(-2)-1;
-
     q = floor(i/m);
     r = i - q*m;
 
