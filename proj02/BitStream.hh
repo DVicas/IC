@@ -27,7 +27,7 @@ BitStream::BitStream(string inFile,string outFile){
         in.open(inFile);
         char c;
         while(in.get(c)){
-            for(int i = 0; i < 8; i++){
+            for(int i = 7; i >= 0; i--){
                 buffer.push_back(((c >> i) & 1));
             }
         }
@@ -64,11 +64,12 @@ int BitStream::readBit(){
 void BitStream::writeBits(string bits){
     //BitStream write n bits
     int bitcount = 0;
-    char curr_byte = 0;
+    unsigned char curr_byte = 0;
 
     if(out.is_open()){
         for(int i = 0; i < bits.length(); i++){
-            curr_byte = curr_byte << 1 | bits[i];
+            curr_byte <<= 1;
+            curr_byte |= bits[i];
             bitcount++;
             if (bitcount == 8){
                 out << curr_byte;
@@ -84,19 +85,21 @@ string BitStream::readBits(int bits){
     //BitStream read n bits
 
     if(in.is_open()){
-        vector<int> auxiliar;
-        string nbits;
-        for(int i = 0; i < buffer.size() - bits; i++){
-            auxiliar.push_back(buffer[i]);
+        vector<int>::const_iterator first = buffer.begin() + bits;
+        vector<int>::const_iterator last = buffer.end();
+        vector<int> aux(first, last);
+        string nbits = "";
+       
+        for(int x = 0; x < bits; x++){
+            nbits += to_string(buffer[x]);
         }
-        for(int x = buffer.size() - 10; x < buffer.size(); x++){
-            nbits += buffer[x];
-        }
-        buffer = auxiliar;
+        buffer = aux;
         return nbits;
         
     }else{
         cout << "No input file to read!" << endl;
+
+        return "";
     }
 }
 vector<int> BitStream::getBuffer(){

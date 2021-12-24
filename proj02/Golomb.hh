@@ -79,8 +79,6 @@ string Golomb::EncodeNumbers(int i, int m) {
 
 int Golomb::DecodeNumbers(string bits, int m) {
     
-    cout << "codeword: " << bits << endl;
-    cout << "m: " << m << endl;
     
     int k = ceil(log2(m));
     int t = pow(2, k) - m;
@@ -110,9 +108,9 @@ int Golomb::DecodeNumbers(string bits, int m) {
         r = s - q*m;
     }
     
-    cout << "q: " << q << endl;
-    cout << "r: " << r << endl;
-    cout << "s: " << s << endl;
+    //cout << "q: " << q << endl;
+    //cout << "r: " << r << endl;
+    //cout << "s: " << s << endl;
 
 
     return s;

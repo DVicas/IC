@@ -10,9 +10,9 @@
 
 using namespace std;
 
-vector<int> code_sizes;
+vector< pair<int,int> > code_info;  //vector with pairs of code info (code length, bits used for padding)
 
-void predictor(char* audio_file);
+int predictor(char* audio_file);
 int folding(short residual);
 int defolding(short n);
 int calculate_m(int sum, int num_items);
@@ -26,7 +26,11 @@ int main(int argc, char* argv[]){
         cout << "WRONG NUMBER OF ARGUMENTS!" << endl;
         return 1;
     }
-    predictor(argv[1]);
+    //encoding
+    int m = predictor(argv[1]);
+
+    //decoding
+    decode(m);
 
     return 1;
 }
@@ -34,7 +38,7 @@ int main(int argc, char* argv[]){
 //the residual values and calculates optimal m; it then encodes the value
 //with its respective golomb code and writes to file using made classes
 
-void predictor(char* audio_file){
+int predictor(char* audio_file){
     
     SNDFILE* file;
     SF_INFO sfinfo;
@@ -78,8 +82,8 @@ void predictor(char* audio_file){
     int m = calculate_m(sum, sfinfo.frames);
     //encoding
     encode(sfinfo.frames, error_buffer, m);
-    //decoding encoded file
-    decode(m);
+    
+    return m;
 }
 
 int folding(short residual){
@@ -119,13 +123,19 @@ void encode(int num_items, short* error_buffer, int m){
     string code;
 
     for(int i = 0; i < num_items; i++){
+        int padding = 0;
         code = g.EncodeNumbers(error_buffer[i], m);
         code.erase(remove(code.begin(), code.end(), ' '), code.end());
-        code_sizes.push_back(code.length()); //keeping code sizes for decoding process
+        while(code.length() % 8 != 0){
+            code.insert(0, "0");
+            padding++;
+        }
+        pair<int,int> p(code.length(), padding);
+        code_info.push_back(p); //keeping code sizes and padding for decoding purposes
         bstream.writeBits(code);
     }
-    bstream.close();
     
+    bstream.close();
 }
 void decode(int m){
     //reads encoded file and decodes each code with the help of 
@@ -134,11 +144,17 @@ void decode(int m){
     //to get the real value
     BitStream bitstm("golomb_output.txt", " ");
     Golomb g;
+    for(int i = 0; code_info.size(); i++){
 
-    for(int i = 0; code_sizes.size(); i++){
-        string x = bitstm.readBits(code_sizes.at(i));
-        int n = g.DecodeNumbers(x, m);
-        n = defolding(n);
+        int length = code_info.at(i).first;
+        int padding = code_info.at(i).second;
+
+        string x = bitstm.readBits(length); //reads first code
+        x.erase(0, padding); //removes padding
+
+        int n = g.DecodeNumbers(x, m); //decodes given code
+        n = defolding(n);  //unfolds/defolds number
+        cout << n << endl;
         //TODO -- WRITE AUDIO FILE WITH DECODED VALUES
     }
     
