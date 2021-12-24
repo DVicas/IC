@@ -21,7 +21,6 @@ Golomb::Golomb() {
 }
 
 string Golomb::EncodeNumbers(int i, int m) {   
-    vector<int> vect;
     int q, r;
     string str = string(); 
 

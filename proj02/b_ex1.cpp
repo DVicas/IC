@@ -10,10 +10,14 @@
 
 using namespace std;
 
+vector<int> code_sizes;
+
 void predictor(char* audio_file);
 int folding(short residual);
+int defolding(short n);
 int calculate_m(int sum, int num_items);
 void encode(int num_items, short* error_buffer, int m);
+void decode(int m);
 void histograms(short* buffer, short* error_buffer, int num_items);
 
 int main(int argc, char* argv[]){
@@ -22,7 +26,8 @@ int main(int argc, char* argv[]){
         cout << "WRONG NUMBER OF ARGUMENTS!" << endl;
         return 1;
     }
-    predictor(argv[1]);        
+    predictor(argv[1]);
+
     return 1;
 }
 //reads audio file, creates single channel (avg of stereo), predicts and calculates
@@ -73,7 +78,8 @@ void predictor(char* audio_file){
     int m = calculate_m(sum, sfinfo.frames);
     //encoding
     encode(sfinfo.frames, error_buffer, m);
-
+    //decoding encoded file
+    decode(m);
 }
 
 int folding(short residual){
@@ -82,6 +88,16 @@ int folding(short residual){
     else residual = residual * (-2) - 1;
 
     return residual;
+}
+
+int defolding(short n){
+    //defolding
+    if(n % 2 == 0){
+        n /= 2;
+    }else{
+        n = (n + 1) / (-2);
+    }
+    return n;
 }
 
 int calculate_m(int sum, int num_items){
@@ -105,11 +121,28 @@ void encode(int num_items, short* error_buffer, int m){
     for(int i = 0; i < num_items; i++){
         code = g.EncodeNumbers(error_buffer[i], m);
         code.erase(remove(code.begin(), code.end(), ' '), code.end());
+        code_sizes.push_back(code.length()); //keeping code sizes for decoding process
         bstream.writeBits(code);
     }
     bstream.close();
+    
 }
+void decode(int m){
+    //reads encoded file and decodes each code with the help of 
+    //a vector composed by the length of each code by order
+    //it decodes each code with length x, and "defolds" the integer
+    //to get the real value
+    BitStream bitstm("golomb_output.txt", " ");
+    Golomb g;
 
+    for(int i = 0; code_sizes.size(); i++){
+        string x = bitstm.readBits(code_sizes.at(i));
+        int n = g.DecodeNumbers(x, m);
+        n = defolding(n);
+        //TODO -- WRITE AUDIO FILE WITH DECODED VALUES
+    }
+    
+}
 void histograms(short* buffer, short* error_buffer, int num_items){
     //calculating histograms and respective entropies, being the error_buffer < buffer
     map<short,int> error_buff_histo;
@@ -142,3 +175,12 @@ void histograms(short* buffer, short* error_buffer, int num_items){
     }
     cout << "ENTROPY -> " << entropy * -1 << endl;
 }
+
+    // void lossyCoding(int frames, int nbits){
+    //     // TODO calcular nbits otimo
+
+    //     int ptr[frames];
+    //     for(int i=0 ; i<frames ; i++){
+    //         ptr[i]=(bufferMono[i] >>  nbits) << nbits;
+    //     }
+    // }

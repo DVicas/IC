@@ -11,8 +11,8 @@ class BitStream{
         BitStream(string inFile = "",string outFile = "");
         void writeBit(int bit);
         int readBit(void);
-        void writeBits(vector<int> n_bits);
-        vector<int> readBits(int bits);
+        void writeBits(string bits);
+        string readBits(int bits);
         vector<int> getBuffer(void);
         void close(void);
 
@@ -27,7 +27,7 @@ BitStream::BitStream(string inFile,string outFile){
         in.open(inFile);
         char c;
         while(in.get(c)){
-            for(int i = 7; i >=0; i--){
+            for(int i = 0; i < 8; i++){
                 buffer.push_back(((c >> i) & 1));
             }
         }
@@ -61,34 +61,42 @@ int BitStream::readBit(){
         return 2;
     }
 }
-void BitStream::writeBits(vector<int> n_bits){
+void BitStream::writeBits(string bits){
     //BitStream write n bits
+    int bitcount = 0;
+    char curr_byte = 0;
+
     if(out.is_open()){
-        for(int x: n_bits){
-            out << x;
+        for(int i = 0; i < bits.length(); i++){
+            curr_byte = curr_byte << 1 | bits[i];
+            bitcount++;
+            if (bitcount == 8){
+                out << curr_byte;
+                curr_byte = 0;
+                bitcount = 0;
+            }
         }
     }else{
         cout << "No output file to write into!" << endl;
     }
 }
-vector<int> BitStream::readBits(int bits){
+string BitStream::readBits(int bits){
     //BitStream read n bits
-    vector<int> nbits;
 
     if(in.is_open()){
         vector<int> auxiliar;
-        for(int i = bits; i < buffer.size(); i++){
+        string nbits;
+        for(int i = 0; i < buffer.size() - bits; i++){
             auxiliar.push_back(buffer[i]);
         }
-        for(int x=0; x < bits; x++){
-            nbits.push_back(buffer[x]);
+        for(int x = buffer.size() - 10; x < buffer.size(); x++){
+            nbits += buffer[x];
         }
         buffer = auxiliar;
         return nbits;
         
     }else{
         cout << "No input file to read!" << endl;
-        return nbits;
     }
 }
 vector<int> BitStream::getBuffer(){
