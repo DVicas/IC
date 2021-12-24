@@ -10,23 +10,23 @@ int bin2d(int);
 class Golomb {
     public:
         Golomb();
-        void EncodeNumbers(int i, int m);
+        string EncodeNumbers(int i, int m);
         int DecodeNumbers(string code, int m);
     private:
-        int i;
-        int m;
+        int zzz;
 };
 
 Golomb::Golomb() {
 
 }
 
-void Golomb::EncodeNumbers(int i, int m) {   
+string Golomb::EncodeNumbers(int i, int m) {   
+    vector<int> vect;
     int q, r;
     string str = string(); 
 
-    //if (i>=0) i = i*2;
-    //else i = i*(-2)-1;
+    if (i>=0) i = i*2;
+    else i = i*(-2)-1;
 
     q = floor(i/m);
     r = i - q*m;
@@ -78,11 +78,7 @@ void Golomb::EncodeNumbers(int i, int m) {
             
         }
     }
-
-
-    cout << str << endl;
-    
-    
+    return str;
 }
 
 int Golomb::DecodeNumbers(string bits, int m) {
@@ -103,7 +99,7 @@ int Golomb::DecodeNumbers(string bits, int m) {
     //store and remove last bit (of the remainder) to have k - 1 bits
     char last = in_r.back(); 
     int l_bit = last - '0';
-    in_r.pop_back(); 
+    in_r.pop_back();
     int r = stoi(in_r, 0, 2);//decimal conversion of the k - 1 bits
     
     if(r < t){
@@ -123,5 +119,5 @@ int Golomb::DecodeNumbers(string bits, int m) {
     cout << "s: " << s << endl;
 
 
-    return 0;
+    return s;
 }

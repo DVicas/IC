@@ -5,11 +5,13 @@
 #include <math.h>
 #include "BitStream.hh"
 #include "Golomb.hh"
+#include <vector>
+#include <string>
 
 using namespace std;
 
 void predictor(char* audio_file);
-void histograms(int* buffer, int* error_buffer, int num_items);
+void histograms(short* buffer, short* error_buffer, int num_items);
 
 int main(int argc, char* argv[]){
 
@@ -20,7 +22,9 @@ int main(int argc, char* argv[]){
     predictor(argv[1]);        
     return 1;
 }
-
+//reads audio file, creates single channel (avg of stereo), predicts and calculates
+//the residual values and calculates optimal m; it then encodes the value
+//with its respective golomb code and writes to file using made classes
 void predictor(char* audio_file){
     
     SNDFILE* file;
@@ -30,12 +34,11 @@ void predictor(char* audio_file){
     file=sf_open(audio_file,SFM_READ,&sfinfo);
 
     int num_items = (int)sfinfo.frames * sfinfo.channels;
-    int* buffer = (int *)malloc(num_items * sizeof(int));
-    int* mono_buffer = (int *)malloc(sfinfo.frames * sizeof(int));
-    int* error_buffer = (int *)malloc(sfinfo.frames * sizeof(int));
+    short* buffer = (short *)malloc(num_items * sizeof(short));
+    short* mono_buffer = (short *)malloc(sfinfo.frames * sizeof(short));
+    short* error_buffer = (short *)malloc(sfinfo.frames * sizeof(short));
     int sum = 0;
-
-    int rd_data = sf_read_int(file, buffer, num_items);
+    int rd_data = sf_read_short(file, buffer, num_items);
 
     for(int i = 0; i < rd_data; i += 2){
         mono_buffer[i / 2] = (buffer[i] + buffer[i + 1]) / 2; 
@@ -53,34 +56,39 @@ void predictor(char* audio_file){
             f_ = 0;
         }  
         error_buffer[i] = mono_buffer[i] - f_;
-        sum += error_buffer[i];
+        sum += abs(error_buffer[i]);
         //cout << "Residual -> " << error_buffer[i] << " Fn -> " << buffer[i] << endl;
     }
 
     //calculating histograms and entropy
     histograms(mono_buffer, error_buffer, sfinfo.frames);
 
-    //calculating the mean to find the "optimal" m -> log2(log(2)*(mean/sqrt(2)))
-    double mean = (double) sum / sfinfo.frames;
+    //calculating the mean to find the "optimal" m -> log2(log(2) * (mean / sqrt(2)))
+    double mean = (double) sum / sfinfo.frames; //what if the mean is negative?
     int m = log2(log(2) * (mean / sqrt(2)));
+    cout << "-----------MEAN----------" << endl;
+    cout << mean << endl;
+    cout << "--------OPTIMAL M--------" << endl;  
     cout << "optimal m -> " << m << endl;
 
     //for each value in the error buffer, calculate the golomb code and write to file via bitstream
     Golomb g;
-    BitStream bstream(" ", "golomb_output.txt");
+    BitStream bstream(" ", "golomb_output.wav");
+    string code;
 
     for(int i = 0; i < sfinfo.frames; i++){
-        // code_vector = g.EncodeNumbers(error_buffer[i], m);
-        //bstream.writeBits(code_vector)
+        code = g.EncodeNumbers(error_buffer[i], m);
+        code.erase(remove(code.begin(), code.end(), ' '), code.end());
+        bstream.writeBits(code);
     }
 
 }
 
-void histograms(int* buffer, int* error_buffer, int num_items){
+void histograms(short* buffer, short* error_buffer, int num_items){
     //HISTOGRAMS
-    map<int,int> error_buff_histo;
-    map<int,int> buff_histo;
-    map<int,int>::iterator it;
+    map<short,int> error_buff_histo;
+    map<short,int> buff_histo;
+    map<short,int>::iterator it;
     double entropy = 0;
     double p = 0;
 
@@ -93,9 +101,9 @@ void histograms(int* buffer, int* error_buffer, int num_items){
     for(it = buff_histo.begin(); it != buff_histo.end(); it++){
         //cout << it->first << " " << it->second << endl;
         p = (double)it->second / (num_items);
-        entropy += p*log(p);
+        entropy += p * log(p);
     }
-    cout << "ENTROPY -> " << entropy*-1 << endl;
+    cout << "ENTROPY -> " << entropy * -1 << endl;
     
     entropy = 0;
     p = 0;
@@ -104,7 +112,7 @@ void histograms(int* buffer, int* error_buffer, int num_items){
     for(it = error_buff_histo.begin(); it != error_buff_histo.end(); it++){
         //cout << it->first << " " << it->second << endl;
         p = (double)it->second / (num_items);
-        entropy += p*log(p);
+        entropy += p * log(p);
     }
-    cout << "ENTROPY -> " << entropy*-1 << endl;
+    cout << "ENTROPY -> " << entropy * -1 << endl;
 }
