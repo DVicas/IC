@@ -11,12 +11,14 @@
 using namespace std;
 
 void predictor(char* audio_file);
+int calculate_m(int sum, int num_items);
+void encode(int num_items, short* error_buffer, int m);
 void histograms(short* buffer, short* error_buffer, int num_items);
 
 int main(int argc, char* argv[]){
 
-    if(argc!=2){
-        cout<<"WRONG NUMBER OF ARGUMENTS!"<<endl;
+    if(argc != 2){
+        cout << "WRONG NUMBER OF ARGUMENTS!" << endl;
         return 1;
     }
     predictor(argv[1]);        
@@ -56,32 +58,43 @@ void predictor(char* audio_file){
             f_ = 0;
         }  
         error_buffer[i] = mono_buffer[i] - f_;
-        sum += abs(error_buffer[i]);
+        sum += abs(error_buffer[i]); //mal
         //cout << "Residual -> " << error_buffer[i] << " Fn -> " << buffer[i] << endl;
     }
 
     //calculating histograms and entropy
     histograms(mono_buffer, error_buffer, sfinfo.frames);
+    //calculating optimal m
+    int m = calculate_m(sum, sfinfo.frames);
+    //encoding
+    encode(sfinfo.frames, error_buffer, m);
 
+}
+
+int calculate_m(int sum, int num_items){
     //calculating the mean to find the "optimal" m -> log2(log(2) * (mean / sqrt(2)))
-    double mean = (double) sum / sfinfo.frames; //what if the mean is negative?
+    double mean = (double) sum / num_items; //what if the mean is negative?
     int m = log2(log(2) * (mean / sqrt(2)));
     cout << "-----------MEAN----------" << endl;
     cout << mean << endl;
     cout << "--------OPTIMAL M--------" << endl;  
     cout << "optimal m -> " << m << endl;
 
+    return m;
+}
+
+void encode(int num_items, short* error_buffer, int m){
     //for each value in the error buffer, calculate the golomb code and write to file via bitstream
     Golomb g;
     BitStream bstream(" ", "golomb_output.wav");
     string code;
 
-    for(int i = 0; i < sfinfo.frames; i++){
+    for(int i = 0; i < num_items; i++){
         code = g.EncodeNumbers(error_buffer[i], m);
         code.erase(remove(code.begin(), code.end(), ' '), code.end());
         bstream.writeBits(code);
     }
-
+    bstream.close();
 }
 
 void histograms(short* buffer, short* error_buffer, int num_items){
