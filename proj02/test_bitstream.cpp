@@ -7,11 +7,11 @@
 using namespace std;
 
 int main(int argc, char* argv[]){
-    vector<int> buff;
-    BitStream bstream("teste.txt"," ");
-    for(int x: bstream.getBuffer()){
-        cout << x;
-    }
+   
+    BitStream bstream(" ","xd.txt");
+    bstream.writeBits("01000001");
+    bstream.writeBits("01001110");
+    bstream.writeBits("01000100");
     bstream.close();
     return 1;
 }
