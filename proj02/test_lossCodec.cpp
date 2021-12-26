@@ -13,19 +13,21 @@ using namespace cv;
 
 int main(int argc, char* argv[]) {
 
-    LosslessCodec g("/home/diogo/Documents/IC/airplane.ppm");
+    LosslessCodec g = LosslessCodec();
+    g.encode(argv[1]);
 
-    Mat img = imread(argv[1], 0);
 
-    if (img.empty()) {
-        cout << "Wrong path" << endl;
-    }
+    // Mat img = imread(argv[1], 0);
 
-    imshow("teste.bgr", img);
+    // if (img.empty()) {
+    //     cout << "Wrong path" << endl;
+    // }
 
-    waitKey(0);
+    // imshow("teste.bgr", img);
 
-    destroyWindow("teste.bgr");
+    // waitKey(0);
+
+    // destroyWindow("teste.bgr");
 
     return 0;
 }
