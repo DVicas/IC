@@ -1,3 +1,7 @@
+/*! \file Golomb.hh
+    \brief Golomb implemented class. Used for encoding numbers and decoding golomb codes.
+
+*/
 #include <iostream>
 #include <cmath>
 #include <string>
@@ -11,22 +15,24 @@ class Golomb {
     public:
         Golomb();
         string EncodeNumbers(int i, int m);
-        int DecodeNumbers(string code, int m);
+        short DecodeNumbers(string code, int m);
     private:
         int zzz;
 };
 
 Golomb::Golomb() {
-
+    /**
+    * Golomb class constructor.
+    */
 }
 
-string Golomb::EncodeNumbers(int i, int m) {   
+string Golomb::EncodeNumbers(int i, int m) {  
+    /**
+    * EncodeNumbers() will encode an arbitrary positive number i with an arbitrary number m that influences the calculations of, i.e, 
+    * the quocient and the remainder.
+    */ 
     int q, r;
-    string str = string(); 
-
-    if (i>=0) i = i*2;
-    else i = i*(-2)-1;
-
+    string str; 
 
     q = floor(i/m);
     r = i - q*m;
@@ -34,7 +40,7 @@ string Golomb::EncodeNumbers(int i, int m) {
     for (int j = 0; j < q; j++) {
         str = str + '0';
     }
-    str = str + "1 ";
+    str = str + "1";
 
     // check if m is a power of 2
     if (ceil(log2(m)) != floor(log2(m))) {
@@ -81,12 +87,15 @@ string Golomb::EncodeNumbers(int i, int m) {
     return str;
 }
 
-int Golomb::DecodeNumbers(string bits, int m) {
-      
+short Golomb::DecodeNumbers(string bits, int m) {
+    /**
+    * DecodeNumbers() will decode a given Golomb code with its respective arbitrary m.
+    */
     int k = ceil(log2(m));
     int t = pow(2, k) - m;
-    int s;
+    short s;
     int r2;
+    int r;
 
     int sep = (int) bits.find("1");
     string in_q = bits.substr(0, sep);
@@ -99,7 +108,12 @@ int Golomb::DecodeNumbers(string bits, int m) {
     char last = in_r.back();
     int l_bit = last - '0';
     in_r.pop_back(); 
-    int r = stoi(in_r, 0, 2);//decimal conversion of the k - 1 bits
+    if(in_r.length() == 0){
+        r = 0;
+    }else{
+        r = stoi(in_r, 0, 2);//decimal conversion of the k - 1 bits
+    }
+    
     
     if(r < t){
         s = q * m + r;
@@ -108,16 +122,6 @@ int Golomb::DecodeNumbers(string bits, int m) {
         s = q * m + r2 - t;
         r = r + l_bit;
     }
-
-    // if (ceil(log2(m)) == floor(log2(m))) {
-    //     r = s - q*m;
-    // }
-
-    if (s%2!=0)
-        s = (s+1)/-2;
-    else
-        s = s/2;
-
 
     return s;
 }

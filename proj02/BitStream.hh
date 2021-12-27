@@ -1,3 +1,7 @@
+/*! \file BitStream.hh
+    \brief Useful class to manipulate bits.
+
+*/
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -17,12 +21,16 @@ class BitStream{
         void close(void);
 
     private:
-        vector<int> buffer;
+        vector<int> buffer; 
         fstream in, out;
 };
 
 BitStream::BitStream(string inFile,string outFile){
-    //bitstream constructor
+    /**
+    * BitStream constructor, this initializes two file streams if the given arguments are not empty; if the strings are empty
+    * the stream will not be opened. If an input file is given it will immediately read all of the bits and store them
+    * in an integer buffer.
+    */
     if(not inFile.empty()){
         in.open(inFile);
         char c;
@@ -37,7 +45,9 @@ BitStream::BitStream(string inFile,string outFile){
     }
 }
 void BitStream::writeBit(int bit){
-    //BitStream writeBit method
+    /**
+    * this function will write on bit on a file
+    */ 
     if(out.is_open()){
         out << bit;
         
@@ -46,7 +56,9 @@ void BitStream::writeBit(int bit){
     }
 }
 int BitStream::readBit(){
-    //BitStream readBit
+    /**
+    * this function will read and return one bit (MSB) from a given input file  
+    */
     if(in.is_open()){
         vector<int> auxiliar;
         for(int i = 1; i < buffer.size(); i++){
@@ -62,14 +74,15 @@ int BitStream::readBit(){
     }
 }
 void BitStream::writeBits(string bits){
-    //BitStream write n bits
+    /**
+    * Writes the given bits on a file by storing them up to a byte, this requires external 'truncation' mechanisms; 
+    */
     int bitcount = 0;
-    unsigned char curr_byte = 0;
+    char curr_byte ;
 
     if(out.is_open()){
         for(int i = 0; i < bits.length(); i++){
-            curr_byte <<= 1;
-            curr_byte |= bits[i];
+            curr_byte = curr_byte << 1 | (bits[i] - '0');
             bitcount++;
             if (bitcount == 8){
                 out << curr_byte;
@@ -82,18 +95,18 @@ void BitStream::writeBits(string bits){
     }
 }
 string BitStream::readBits(int bits){
-    //BitStream read n bits
+    /**
+    * This function will read @bits amount of bits by taking them out of the BitStream buffer and, consequently, erasing 
+    * them after the operation is done.
+    */
 
     if(in.is_open()){
-        vector<int>::const_iterator first = buffer.begin() + bits;
-        vector<int>::const_iterator last = buffer.end();
-        vector<int> aux(first, last);
-        string nbits = "";
-       
+        string nbits;
+
         for(int x = 0; x < bits; x++){
-            nbits += to_string(buffer[x]);
+             nbits += to_string(buffer[x]);
         }
-        buffer = aux;
+        buffer.erase(buffer.begin(), buffer.begin() + bits);
         return nbits;
         
     }else{
@@ -103,10 +116,16 @@ string BitStream::readBits(int bits){
     }
 }
 vector<int> BitStream::getBuffer(){
+    /**
+    *  getBuffer() will return the bit buffer from the BitStream class
+    */
     return buffer;
 }
 void BitStream::close(void){
-    //BitStream close method
+    /**
+    * Useful method to reallocate memory
+    */
+
     if(in.is_open()){
         in.close();
     }

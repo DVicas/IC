@@ -1,3 +1,7 @@
+/*! \file test_golomb.cpp
+    \brief Golomb class file tester. Some useful encoding and decoding.
+
+*/
 #include "Golomb.hh"
 
 using namespace std;
@@ -5,20 +9,18 @@ using namespace std;
 int main() {
 
     Golomb g;
-    int i;
-    cout << g.EncodeNumbers(503, 13) << endl;
-    i = g.DecodeNumbers("000100", 5);
+    cout << g.EncodeNumbers(1225, 676) << endl;
     cout << "---------------" << endl;
-    cout << i << endl;
-    i = g.DecodeNumbers("0000001111", 5);
+    cout << g.EncodeNumbers(10, 6) << endl;
     cout << "---------------" << endl;
-    cout << i << endl;
-    i = g.DecodeNumbers("0000000000000000000000000000000000000000000000000000000000000000000000000000011000", 13);
+    cout << g.DecodeNumbers("011110000001", 676) << endl;
     cout << "---------------" << endl;
-    cout << i << endl;
-    i = g.DecodeNumbers("00100", 5);
+    g.DecodeNumbers("00111", 4);
     cout << "---------------" << endl;
-    cout << i << endl;
+    g.DecodeNumbers("01110", 5);
+    cout << "---------------" << endl;
+    g.DecodeNumbers("00100", 5);
+    cout << "---------------" << endl;
 
     return 0;
 }
