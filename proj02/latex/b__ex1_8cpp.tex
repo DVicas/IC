@@ -1,0 +1,125 @@
+\hypertarget{b__ex1_8cpp}{}\doxysection{b\+\_\+ex1.\+cpp File Reference}
+\label{b__ex1_8cpp}\index{b\_ex1.cpp@{b\_ex1.cpp}}
+
+
+This file refers to the project\textquotesingle{}s second challenge. It demonstrates the developed audio codec that relies on predictive coding.  
+
+
+{\ttfamily \#include $<$fstream$>$}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$sndfile.\+h$>$}\newline
+{\ttfamily \#include $<$map$>$}\newline
+{\ttfamily \#include $<$math.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}Bit\+Stream.\+hh\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Golomb.\+hh\char`\"{}}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{b__ex1_8cpp_a59b1aa2f8298de2d72fbbea3db283aab}{predictor}} (char $\ast$audio\+\_\+file)
+\item 
+short \mbox{\hyperlink{b__ex1_8cpp_a395599c3982d76afdd7626807fb20f81}{folding}} (short residual)
+\item 
+short \mbox{\hyperlink{b__ex1_8cpp_a0a32b2a80af3a64acb8a173220d77af9}{defolding}} (short n)
+\item 
+int \mbox{\hyperlink{b__ex1_8cpp_adcd2fad1b590d82a3534a9ef8fd0ca57}{calculate\+\_\+m}} (int sum)
+\item 
+void \mbox{\hyperlink{b__ex1_8cpp_a1d1c902f68ac27da721d0978b40951e8}{encode}} (short $\ast$error\+\_\+buffer, int m)
+\item 
+void \mbox{\hyperlink{b__ex1_8cpp_a2b0d0edc4ddc7d2216269d339f2d3e80}{decode}} (int m, char $\ast$aduio\+\_\+file)
+\item 
+void \mbox{\hyperlink{b__ex1_8cpp_accba51be869a027e8ac567b0e483b102}{histograms}} (short $\ast$buffer, short $\ast$error\+\_\+buffer)
+\item 
+\mbox{\Hypertarget{b__ex1_8cpp_a0ddf1224851353fc92bfbff6f499fa97}\label{b__ex1_8cpp_a0ddf1224851353fc92bfbff6f499fa97}} 
+int {\bfseries main} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+vector$<$ int $>$ \mbox{\hyperlink{b__ex1_8cpp_a4a90587621a4ffa30b90630dd6179b1e}{code\+\_\+info}}
+\item 
+short $\ast$ \mbox{\hyperlink{b__ex1_8cpp_a2ba8a7dbc1986adffb16f481d5b55fa3}{mono\+\_\+buffer}}
+\item 
+int \mbox{\hyperlink{b__ex1_8cpp_af0bbed14cf6294c187499179ee38189d}{num\+\_\+items}}
+\item 
+SF\+\_\+\+INFO \mbox{\hyperlink{b__ex1_8cpp_a6993a4314b1f21cc6aa5614009106c94}{sfinfo}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This file refers to the project\textquotesingle{}s second challenge. It demonstrates the developed audio codec that relies on predictive coding. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{b__ex1_8cpp_adcd2fad1b590d82a3534a9ef8fd0ca57}\label{b__ex1_8cpp_adcd2fad1b590d82a3534a9ef8fd0ca57}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!calculate\_m@{calculate\_m}}
+\index{calculate\_m@{calculate\_m}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{calculate\_m()}{calculate\_m()}}
+{\footnotesize\ttfamily int calculate\+\_\+m (\begin{DoxyParamCaption}\item[{int}]{sum }\end{DoxyParamCaption})}
+
+This function will calculate the \textquotesingle{}optimal\textquotesingle{} m with the formula -\/\texorpdfstring{$>$}{>} ceil(-\/1/log2(mean/(mean+1)))\mbox{\Hypertarget{b__ex1_8cpp_a2b0d0edc4ddc7d2216269d339f2d3e80}\label{b__ex1_8cpp_a2b0d0edc4ddc7d2216269d339f2d3e80}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!decode@{decode}}
+\index{decode@{decode}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{decode()}{decode()}}
+{\footnotesize\ttfamily void decode (\begin{DoxyParamCaption}\item[{int}]{m,  }\item[{char $\ast$}]{aduio\+\_\+file }\end{DoxyParamCaption})}
+
+\mbox{\hyperlink{b__ex1_8cpp_a2b0d0edc4ddc7d2216269d339f2d3e80}{decode()}} will read an encoded file and decodes each code with the help of the code\+\_\+info vector composed by the length of each code by order. It reads each code with length x using the \mbox{\hyperlink{class_bit_stream}{Bit\+Stream}} read\+Bits() method, and \char`\"{}defolds\char`\"{} the integer to get the \textquotesingle{}real\textquotesingle{} value. Afterwards it reverses the residual encoding formula to decode the residual. Finally, it will write the decoded data into an audio file with name given as arguments.\mbox{\Hypertarget{b__ex1_8cpp_a0a32b2a80af3a64acb8a173220d77af9}\label{b__ex1_8cpp_a0a32b2a80af3a64acb8a173220d77af9}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!defolding@{defolding}}
+\index{defolding@{defolding}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{defolding()}{defolding()}}
+{\footnotesize\ttfamily short defolding (\begin{DoxyParamCaption}\item[{short}]{n }\end{DoxyParamCaption})}
+
+Defolding() will do the inverse of the \mbox{\hyperlink{b__ex1_8cpp_a395599c3982d76afdd7626807fb20f81}{folding()}} function.\mbox{\Hypertarget{b__ex1_8cpp_a1d1c902f68ac27da721d0978b40951e8}\label{b__ex1_8cpp_a1d1c902f68ac27da721d0978b40951e8}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!encode@{encode}}
+\index{encode@{encode}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{encode()}{encode()}}
+{\footnotesize\ttfamily void encode (\begin{DoxyParamCaption}\item[{short $\ast$}]{error\+\_\+buffer,  }\item[{int}]{m }\end{DoxyParamCaption})}
+
+\mbox{\hyperlink{b__ex1_8cpp_a1d1c902f68ac27da721d0978b40951e8}{encode()}} will encode each value in the error (or residual) buffer. It calculates its golomb code and writes it into a binary file via \mbox{\hyperlink{class_bit_stream}{Bit\+Stream}} class. This function uses a truncation mechanism that allows the bits to be written only if they are multiples of 8 (bytes) or have a code length bigger than 8 (byte). If there are remainder bits we will just add 0\textquotesingle{}s to the end of the file.\mbox{\Hypertarget{b__ex1_8cpp_a395599c3982d76afdd7626807fb20f81}\label{b__ex1_8cpp_a395599c3982d76afdd7626807fb20f81}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!folding@{folding}}
+\index{folding@{folding}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{folding()}{folding()}}
+{\footnotesize\ttfamily short folding (\begin{DoxyParamCaption}\item[{short}]{residual }\end{DoxyParamCaption})}
+
+Transforms an abritrary number into a positive number. If the given residual is negative it will turn into a positive odd number, else it will fold the number into his respective double number\mbox{\Hypertarget{b__ex1_8cpp_accba51be869a027e8ac567b0e483b102}\label{b__ex1_8cpp_accba51be869a027e8ac567b0e483b102}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!histograms@{histograms}}
+\index{histograms@{histograms}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{histograms()}{histograms()}}
+{\footnotesize\ttfamily void histograms (\begin{DoxyParamCaption}\item[{short $\ast$}]{buffer,  }\item[{short $\ast$}]{error\+\_\+buffer }\end{DoxyParamCaption})}
+
+calculating histograms and respective entropies, being the error\+\_\+buffer \texorpdfstring{$<$}{<} buffer\mbox{\Hypertarget{b__ex1_8cpp_a59b1aa2f8298de2d72fbbea3db283aab}\label{b__ex1_8cpp_a59b1aa2f8298de2d72fbbea3db283aab}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!predictor@{predictor}}
+\index{predictor@{predictor}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{predictor()}{predictor()}}
+{\footnotesize\ttfamily int predictor (\begin{DoxyParamCaption}\item[{char $\ast$}]{audio\+\_\+file }\end{DoxyParamCaption})}
+
+reads audio file, creates single channel buffer (avg of stereo), calculates the residual values (uses folding to get only positive values) based on predictive coding and calculates optimal m; it then encodes the value with its respective \mbox{\hyperlink{class_golomb}{Golomb}} code and writes to file using \mbox{\hyperlink{class_bit_stream}{Bit\+Stream}} class. It also compares the original buffer with the residual buffer (with calculated entropies); The residual buffer will always have less entropy.
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{b__ex1_8cpp_a4a90587621a4ffa30b90630dd6179b1e}\label{b__ex1_8cpp_a4a90587621a4ffa30b90630dd6179b1e}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!code\_info@{code\_info}}
+\index{code\_info@{code\_info}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{code\_info}{code\_info}}
+{\footnotesize\ttfamily vector$<$int$>$ code\+\_\+info}
+
+vector with the length of each written code; used for decoding purposes \mbox{\Hypertarget{b__ex1_8cpp_a2ba8a7dbc1986adffb16f481d5b55fa3}\label{b__ex1_8cpp_a2ba8a7dbc1986adffb16f481d5b55fa3}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!mono\_buffer@{mono\_buffer}}
+\index{mono\_buffer@{mono\_buffer}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{mono\_buffer}{mono\_buffer}}
+{\footnotesize\ttfamily short$\ast$ mono\+\_\+buffer}
+
+mono channel buffer for generic purposes \mbox{\Hypertarget{b__ex1_8cpp_af0bbed14cf6294c187499179ee38189d}\label{b__ex1_8cpp_af0bbed14cf6294c187499179ee38189d}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!num\_items@{num\_items}}
+\index{num\_items@{num\_items}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{num\_items}{num\_items}}
+{\footnotesize\ttfamily int num\+\_\+items}
+
+static number of items of the mono channel ( half of the wav fil samples ) \mbox{\Hypertarget{b__ex1_8cpp_a6993a4314b1f21cc6aa5614009106c94}\label{b__ex1_8cpp_a6993a4314b1f21cc6aa5614009106c94}} 
+\index{b\_ex1.cpp@{b\_ex1.cpp}!sfinfo@{sfinfo}}
+\index{sfinfo@{sfinfo}!b\_ex1.cpp@{b\_ex1.cpp}}
+\doxysubsubsection{\texorpdfstring{sfinfo}{sfinfo}}
+{\footnotesize\ttfamily SF\+\_\+\+INFO sfinfo}
+
+audio file data structure 

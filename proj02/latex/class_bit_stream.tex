@@ -1,0 +1,73 @@
+\hypertarget{class_bit_stream}{}\doxysection{Bit\+Stream Class Reference}
+\label{class_bit_stream}\index{BitStream@{BitStream}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_bit_stream_a53f22d07f77bc7396456c89869d0d159}{Bit\+Stream}} (string in\+File=\char`\"{}\char`\"{}, string out\+File=\char`\"{}\char`\"{})
+\item 
+void \mbox{\hyperlink{class_bit_stream_aa86adee7779cf956e70348f392a1a985}{write\+Bit}} (int bit)
+\item 
+int \mbox{\hyperlink{class_bit_stream_a183934b27e677d0a84e00ce1888858e1}{read\+Bit}} (void)
+\item 
+void \mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{write\+Bits}} (string bits)
+\item 
+string \mbox{\hyperlink{class_bit_stream_af5135c8e770ed39dbc2a14426655eddd}{read\+Bits}} (int bits)
+\item 
+vector$<$ int $>$ \mbox{\hyperlink{class_bit_stream_a51741df884698cb9221e2548ca2012d2}{get\+Buffer}} (void)
+\item 
+void \mbox{\hyperlink{class_bit_stream_a9c7473b195e8e7087c51dc67c92b5ea6}{close}} (void)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_bit_stream_a53f22d07f77bc7396456c89869d0d159}\label{class_bit_stream_a53f22d07f77bc7396456c89869d0d159}} 
+\index{BitStream@{BitStream}!BitStream@{BitStream}}
+\index{BitStream@{BitStream}!BitStream@{BitStream}}
+\doxysubsubsection{\texorpdfstring{BitStream()}{BitStream()}}
+{\footnotesize\ttfamily Bit\+Stream\+::\+Bit\+Stream (\begin{DoxyParamCaption}\item[{string}]{in\+File = {\ttfamily \char`\"{}\char`\"{}},  }\item[{string}]{out\+File = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})}
+
+\mbox{\hyperlink{class_bit_stream}{Bit\+Stream}} constructor, this initializes two file streams if the given arguments are not empty; if the strings are empty the stream will not be opened. If an input file is given it will immediately read all of the bits and store them in an integer buffer.
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_bit_stream_a9c7473b195e8e7087c51dc67c92b5ea6}\label{class_bit_stream_a9c7473b195e8e7087c51dc67c92b5ea6}} 
+\index{BitStream@{BitStream}!close@{close}}
+\index{close@{close}!BitStream@{BitStream}}
+\doxysubsubsection{\texorpdfstring{close()}{close()}}
+{\footnotesize\ttfamily void Bit\+Stream\+::close (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+Useful method to reallocate memory\mbox{\Hypertarget{class_bit_stream_a51741df884698cb9221e2548ca2012d2}\label{class_bit_stream_a51741df884698cb9221e2548ca2012d2}} 
+\index{BitStream@{BitStream}!getBuffer@{getBuffer}}
+\index{getBuffer@{getBuffer}!BitStream@{BitStream}}
+\doxysubsubsection{\texorpdfstring{getBuffer()}{getBuffer()}}
+{\footnotesize\ttfamily vector$<$ int $>$ Bit\+Stream\+::get\+Buffer (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\mbox{\hyperlink{class_bit_stream_a51741df884698cb9221e2548ca2012d2}{get\+Buffer()}} will return the bit buffer from the \mbox{\hyperlink{class_bit_stream}{Bit\+Stream}} class\mbox{\Hypertarget{class_bit_stream_a183934b27e677d0a84e00ce1888858e1}\label{class_bit_stream_a183934b27e677d0a84e00ce1888858e1}} 
+\index{BitStream@{BitStream}!readBit@{readBit}}
+\index{readBit@{readBit}!BitStream@{BitStream}}
+\doxysubsubsection{\texorpdfstring{readBit()}{readBit()}}
+{\footnotesize\ttfamily int Bit\+Stream\+::read\+Bit (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+this function will read and return one bit (MSB) from a given input file ~\newline
+\mbox{\Hypertarget{class_bit_stream_af5135c8e770ed39dbc2a14426655eddd}\label{class_bit_stream_af5135c8e770ed39dbc2a14426655eddd}} 
+\index{BitStream@{BitStream}!readBits@{readBits}}
+\index{readBits@{readBits}!BitStream@{BitStream}}
+\doxysubsubsection{\texorpdfstring{readBits()}{readBits()}}
+{\footnotesize\ttfamily string Bit\+Stream\+::read\+Bits (\begin{DoxyParamCaption}\item[{int}]{bits }\end{DoxyParamCaption})}
+
+This function will read @bits amount of bits by taking them out of the \mbox{\hyperlink{class_bit_stream}{Bit\+Stream}} buffer and, consequently, erasing them after the operation is done.\mbox{\Hypertarget{class_bit_stream_aa86adee7779cf956e70348f392a1a985}\label{class_bit_stream_aa86adee7779cf956e70348f392a1a985}} 
+\index{BitStream@{BitStream}!writeBit@{writeBit}}
+\index{writeBit@{writeBit}!BitStream@{BitStream}}
+\doxysubsubsection{\texorpdfstring{writeBit()}{writeBit()}}
+{\footnotesize\ttfamily void Bit\+Stream\+::write\+Bit (\begin{DoxyParamCaption}\item[{int}]{bit }\end{DoxyParamCaption})}
+
+this function will write on bit on a file\mbox{\Hypertarget{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}\label{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}} 
+\index{BitStream@{BitStream}!writeBits@{writeBits}}
+\index{writeBits@{writeBits}!BitStream@{BitStream}}
+\doxysubsubsection{\texorpdfstring{writeBits()}{writeBits()}}
+{\footnotesize\ttfamily void Bit\+Stream\+::write\+Bits (\begin{DoxyParamCaption}\item[{string}]{bits }\end{DoxyParamCaption})}
+
+Writes the given bits on a file by storing them up to a byte, this requires external \textquotesingle{}truncation\textquotesingle{} mechanisms;
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{_bit_stream_8hh}{Bit\+Stream.\+hh}}\end{DoxyCompactItemize}
