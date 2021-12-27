@@ -1,5 +1,5 @@
 CC= g++
-CFLAGS= -g -Wall -I/usr/include/opencv4
+CFLAGS= -g -Wall `pkg-config --cflags opencv4`
 LFLAGS= `pkg-config --libs opencv4`
 
 LosslessCodec.o: test_lossCodec.cpp LosslessCodec.hh

@@ -15,11 +15,14 @@ class LosslessCodec {
         void encode(string path);
     private:
         void toYUV(Mat img, Mat* yuv_channels);
+        Mat predictor(Mat img);
 };
 
 void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
 
     cvtColor(img, img, COLOR_RGB2YUV);
+    // cvtColor(img, img, COLOR_RGB2YUV_I420);
+    
     split(img, yuv_channels);
 
     /****** DEBUG ******/
@@ -105,6 +108,49 @@ void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
 
 }
 
+Mat LosslessCodec::predictor(Mat img) {
+
+    Mat error (img.size().height, img.size().width, CV_8UC1);
+    int a = 0, b = 0, c = 0, x;
+    for (int i = 0; i < img.size().height; i++) {
+        for (int j = 0; j < img.size().width; j++) {
+            // canto superior esquerdo
+            if (i == 0 && j == 0) {
+                a = 0;
+                b = 0;
+                c = 0;
+            } 
+            else if (i == 0 && j != 0) { // linha cima
+                a = (int) img.at<uchar>(i,j-1);
+                b = 0;
+                c = 0;
+            }
+            else if (i != 0 && j == 0) { // coluna esquerda
+                a = 0;
+                b = (int) img.at<uchar>(i-1,j);
+                c = 0;
+            }
+            else {
+                a = (int) img.at<uchar>(i,j-1);
+                b = (int) img.at<uchar>(i-1,j);
+                c = (int) img.at<uchar>(i-1,j-1);
+            }
+            if (c >= max(a,b)) {
+                x = min(a,b);
+            }
+            else if (c <= min(a,b)) {
+                x = max(a,b);
+            }
+            else {
+                x = a + b - c;
+            }
+            error.at<uchar>(i,j) = img.at<uchar>(i,j) - (uchar) x;
+            // cout << (int) error.at<uchar>(i,j) << endl;
+        }
+    }
+    return error;
+}
+
 
 void LosslessCodec::encode(string path) {
     Mat img = imread(path);
@@ -116,4 +162,11 @@ void LosslessCodec::encode(string path) {
     toYUV(img, channels);
 
     cout << channels << endl;
+
+    Mat error[3];
+    for (int i = 0; i < 3; i++) { // yuv 3 channels
+        error[i] = predictor(channels[i]);
+    }
+
+
  }
