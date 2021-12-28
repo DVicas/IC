@@ -22,6 +22,7 @@ class BitStream{
 
     private:
         vector<int> buffer; 
+        int z = 0;
         fstream in, out;
 };
 
@@ -103,10 +104,11 @@ string BitStream::readBits(int bits){
     if(in.is_open()){
         string nbits;
 
-        for(int x = 0; x < bits; x++){
-             nbits += to_string(buffer[x]);
+        int y = z + bits;
+
+        for(; z < y; z++){
+             nbits += to_string(buffer[z]);
         }
-        buffer.erase(buffer.begin(), buffer.begin() + bits);
         return nbits;
         
     }else{

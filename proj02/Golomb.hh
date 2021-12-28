@@ -40,15 +40,13 @@ string Golomb::EncodeNumbers(int i, int m) {
         int b = ceil(log2(m));
         int n_bits;
 
-        if (r<b){
-            n_bits = b-1;
+        if (r < pow(2, b) - m){
+            n_bits = b - 1;
         }
         else{
-            r = r+pow(2,b)-m;
+            r = r + pow(2,b) - m;
             n_bits = b;
         }
-
-        aux = 0;
 
         string auxStr = bitset<64>(r).to_string();
         
@@ -61,7 +59,6 @@ string Golomb::EncodeNumbers(int i, int m) {
     }
     
     else{
-        aux = 0;
 
         string auxStr = bitset<64>(r).to_string();
 
@@ -84,8 +81,6 @@ short Golomb::DecodeNumbers(string bits, int m) {
     /**
     * DecodeNumbers() will decode a given Golomb code with its respective arbitrary m.
     */
-    int k = ceil(log2(m));
-    int t = pow(2, k) - m;
     short s;
     int r2;
     int r;
@@ -93,28 +88,21 @@ short Golomb::DecodeNumbers(string bits, int m) {
     int sep = (int) bits.find("1");
     string in_q = bits.substr(0, sep);
     string in_r = bits.substr(sep + 1);
-    if (in_r.length() == 1) 
-        in_r = '0' + in_r;
+
     //quotient
     int q = in_q.size();
-    //store and remove last bit (of the remainder) to have k - 1 bits
-    char last = in_r.back();
-    int l_bit = last - '0';
-    in_r.pop_back(); 
-    if(in_r.length() == 0){
-        r = 0;
-    }else{
-        r = stoi(in_r, 0, 2);//decimal conversion of the k - 1 bits
-    }
     
-    
-    if(r < t){
-        s = q * m + r;
-    }else{
-        r2 = r * 2 + l_bit;
-        s = q * m + r2 - t;
-        r = r + l_bit;
-    }
+    r = stoi(in_r, 0, 2);
 
-    return s;
+    if(ceil(log2(m)) != floor(log2(m))){
+        //not power of 2
+        int b = ceil(log2(m));
+
+        if(in_r.length() >= pow(2, b) - m){
+            r = r - pow(2, b) + m;
+        }
+    }
+    
+    return q*m + r;
+    
 }
