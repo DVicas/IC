@@ -19,7 +19,7 @@ class LosslessCodec {
     private:
         void toYUV(Mat img, Mat* yuv_channels);
         int calculate_m(Mat mat);
-        double calculate_entropy(int m);
+        double calculate_entropy(Mat mat);
         Mat predictor(Mat img);
 };
 
@@ -32,10 +32,10 @@ void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
     split(img, yuv_channels);
 
     /****** DEBUG ******/
-    cout << yuv_channels << endl;    
-    cout << yuv_channels[0].size() << endl;
-    cout << yuv_channels[1].size() << endl;
-    cout << yuv_channels[2].size() << endl;
+    // cout << yuv_channels << endl;    
+    // cout << yuv_channels[0] << endl;
+    // cout << yuv_channels[1] << endl;
+    // cout << yuv_channels[2] << endl;
 
     // imshow("Y", channels[0]);
     // imshow("U", channels[1]);
@@ -72,9 +72,9 @@ void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
     // imshow("V", yuv_channels[2]);
     // waitKey(0);
 
-    cout << yuv_channels[0].size() << endl;
-    cout << yuv_channels[1].size() << endl;
-    cout << yuv_channels[2].size() << endl;
+    // cout << yuv_channels[0].size() << endl;
+    // cout << yuv_channels[1].size() << endl;
+    // cout << yuv_channels[2].size() << endl;
 }
 
 Mat LosslessCodec::predictor(Mat img) {
@@ -134,18 +134,23 @@ void LosslessCodec::encode(string path) {
 
     //one for each channel (3 channels) // Y = [0] / U = [1] / V = [2]
     Mat error[3];
-    double entropy[3] = {0};
+    double entropy = 0;
     for (int i = 0; i < 3; i++) {   //fill error matrices and calc entropy 
         error[i] = predictor(channels[i]);
-        // entropy[i] = calculate_entropy(calculate_m(error[i]));
+        entropy += calculate_entropy(channels[i]);
     }
+    entropy = entropy / 3; //3 channels
+    cout << "entropy " << entropy << endl;
     
+
     Golomb g;
     BitStream bs = BitStream("", "image.bin");
     int m, val;
-    string bits;
+    string bits, code, byte;
     for (int k = 0; k < 3; k++) {
         m = calculate_m(error[k]);
+
+        cout << m << endl;
         
         for (int i = 0; i < error[k].size().height; i++) {
             for (int j = 0; j < error[k].size().width; j++){   
@@ -155,7 +160,6 @@ void LosslessCodec::encode(string path) {
             }
         }
     }
-
 }
 
 int LosslessCodec::calculate_m(Mat mat) {
@@ -172,10 +176,24 @@ int LosslessCodec::calculate_m(Mat mat) {
     return ceil(-1/log2(mean/(mean+1)));
 }
 
-double LosslessCodec::calculate_entropy(int m) {
-    Golomb g = Golomb();
+double LosslessCodec::calculate_entropy(Mat mat) {
+    
+    int bins[256] = {0};
+    int val;
+    for(int i = 0; i < mat.size().height; i++) {
+        for (int j = 0; j < mat.size().width; j++) {
+            val = (int) mat.at<uchar>(i,j);           
+            bins[val]++;
+        }
+    }
 
-    // g.EncodeNumbers();
+    double size = mat.size().width * mat.size().height;
+    double entropy = 0;
+    for(int i = 0; i < 256; i++) {
+        if (bins[i] > 0) {
+            entropy += (bins[i]/size) * (log(bins[i]/size));
+        }
+    }
 
-    return 0;
+    return entropy*(-1);
 }
