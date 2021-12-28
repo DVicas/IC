@@ -9,6 +9,12 @@ using namespace std;
 int main() {
 
     Golomb g;
+    cout << g.EncodeNumbers(1812, 676) << endl;
+    cout << g.DecodeNumbers("0011100101000", 676) << endl;
+    cout << "---------------" << endl;
+    cout << g.EncodeNumbers(19609, 676) << endl;
+    cout << g.DecodeNumbers("000000000000000000000000000001000000101", 676) << endl;
+    cout << "---------------" << endl;
     cout << g.EncodeNumbers(273, 74) << endl;
     cout << g.DecodeNumbers("0001110011", 74) << endl;
     cout << "---------------" << endl;

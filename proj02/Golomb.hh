@@ -21,7 +21,7 @@ class Golomb {
 string Golomb::EncodeNumbers(int i, int m) {  
     /**
     * EncodeNumbers() will encode an arbitrary positive number i with an arbitrary number m that influences the calculations of, i.e, 
-    * the quocient and the remainder.
+    * the quocient and the remainder. External folding mechanisms are needed
     */ 
     int q, r;
     string str; 
@@ -80,6 +80,9 @@ string Golomb::EncodeNumbers(int i, int m) {
 short Golomb::DecodeNumbers(string bits, int m) {
     /**
     * DecodeNumbers() will decode a given Golomb code with its respective arbitrary m.
+    * External folding mechanisms are needed.else{
+
+    }
     */
     short s;
     int r2;
@@ -98,7 +101,7 @@ short Golomb::DecodeNumbers(string bits, int m) {
         //not power of 2
         int b = ceil(log2(m));
 
-        if(in_r.length() >= pow(2, b) - m){
+        if(r >= pow(2, b) - m){
             r = r - pow(2, b) + m;
         }
     }

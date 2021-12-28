@@ -24,8 +24,10 @@ int predictor(char* audio_file);
 short folding(short residual);
 short defolding(short n);
 int calculate_m(int sum);
-void encode(short* error_buffer, int m);
-void decode(int m, char* aduio_file);
+void lossless_encode(short* error_buffer, int m);
+void lossless_decode(int m, char* audio_file);
+void lossy_encode(short* error_buffer, int m, int optimal_bits);
+void lossy_decode(int m, char* audio_file, int optimal_bits);
 void histograms(short* buffer, short* error_buffer);
 
 int main(int argc, char* argv[]){
@@ -38,7 +40,7 @@ int main(int argc, char* argv[]){
     int m = predictor(argv[1]);
 
     //decoding
-    decode(m, argv[2]);
+    lossless_decode(m, argv[2]);
 
     return 1;
 }
@@ -70,8 +72,8 @@ int predictor(char* audio_file){
         mono_buffer[i / 2] = (buffer[i] + buffer[i + 1]) / 2; 
     }
 
-    for(int i = 0; i < sfinfo.frames; i++){
-        int f_;
+    for(int i = 0; i < num_items; i++){
+        short f_;
         if(i > 2){
             f_ = (3 * mono_buffer[i - 1]) - (3 * mono_buffer[i - 2]) + mono_buffer[i - 3];
         }else if(i == 2){
@@ -93,7 +95,7 @@ int predictor(char* audio_file){
     //calculating optimal m
     int m = calculate_m(sum);
     //encoding
-    encode(error_buffer, m);
+    lossless_encode(error_buffer, m);
         cout << "COMPRESSING COMPLETE" << endl;
     return m;
 }
@@ -103,9 +105,12 @@ short folding(short residual){
     * Transforms an abritrary number into a positive number. If the given residual 
     * is negative it will turn into a positive odd number, else it will fold the number into his respective double number
     */ 
-    if (residual >= 0) residual = residual * 2;   
-    else residual = residual * (-2) - 1;
+    if (residual >= 0){
+        residual = residual * 2;   
+    }else{
 
+        residual = residual * (-2) - 1;
+}
     return residual;
 }
 
@@ -135,16 +140,16 @@ int calculate_m(int sum){
     return m;
 }
 
-void encode(short* error_buffer, int m){
+void lossless_encode(short* error_buffer, int m){
     //for each value in the error buffer, calculate the golomb code and write to file via bitstream
     /**
-    * encode() will encode each value in the error (or residual) buffer. It calculates its golomb code
+    * lossless_encode() will encode each value in the error (or residual) buffer. It calculates its golomb code
     * and writes it into a binary file via BitStream class. This function uses a truncation mechanism
     * that allows the bits to be written only if they are multiples of 8 (bytes) or have a code length
     * bigger than 8 (byte). If there are remainder bits we will just add 0's to the end of the file.
     */ 
     Golomb g;
-    BitStream bstream("", "golomb_output.bin");
+    BitStream bstream("", "golomb_output.txt");
     string code;
     string byte;
 
@@ -168,9 +173,9 @@ void encode(short* error_buffer, int m){
     bstream.writeBits(byte);
     bstream.close();
 }
-void decode(int m, char* audio_file){
+void lossless_decode(int m, char* audio_file){
     /**
-    * decode() will read an encoded file and decodes each code with the help of 
+    * lossless_decode() will read an encoded file and decodes each code with the help of 
     * the code_info vector composed by the length of each code by order.
     * It reads each code with length x using the BitStream readBits() method, and "defolds" the integer
     * to get the 'real' value. Afterwards it reverses the residual encoding formula to decode the residual.
@@ -182,13 +187,13 @@ void decode(int m, char* audio_file){
     file=sf_open(audio_file,SFM_WRITE,&sfinfo);
 
     short* buffer = (short *)malloc(num_items * sizeof(short)); 
-    BitStream bstream("golomb_output.bin", "");
+    BitStream bstream("golomb_output.txt", "");
     Golomb g;
-    for(int i = 0; i < code_info.size(); i++){
+    for(int i = 0; i < num_items; i++){
         string code = bstream.readBits(code_info.at(i)); //reads code
         short n = g.DecodeNumbers(code, m); //decodes the code with length i
         n = defolding(n); //defolds residual value
-        int f_;
+        short f_;
         if(i > 2){
             f_ = (3 * buffer[i - 1]) - (3 * buffer[i - 2]) + buffer[i - 3];
         }else if(i == 2){
@@ -199,11 +204,25 @@ void decode(int m, char* audio_file){
             f_ = 0; 
         }
         buffer[i] = n + f_;
-        cout << i << "/" << num_items << " decoded -> " << buffer[i] << " | mono -> " << mono_buffer[i] << endl;
     }
-    cout << "decompressing done" << endl;
-    int rd_data = sf_write_short(file, buffer, num_items);    
+    cout << "DECOMPRESSING COMPLETE" << endl;
+    int rd_data = sf_write_short(file, buffer, num_items); 
+    sf_close(file);
     bstream.close();
+}
+void lossy_encode(short* error_buffer, int m, int entropy){
+    // void lossyCoding(int frames, int nbits){
+    //     // TODO calcular nbits otimo
+
+    //     int ptr[frames];
+    //     for(int i=0 ; i<frames ; i++){
+    //         ptr[i]=(bufferMono[i] >>  nbits) << nbits;
+    //     }
+    // }
+    
+}
+void lossy_decode(int m, char* audio_file, int entropy){
+
 }
 
 void histograms(short* buffer, short* error_buffer){
@@ -240,12 +259,3 @@ void histograms(short* buffer, short* error_buffer){
     }
     cout << "ENTROPY -> " << entropy * -1 << endl;
 }
-
-    // void lossyCoding(int frames, int nbits){
-    //     // TODO calcular nbits otimo
-
-    //     int ptr[frames];
-    //     for(int i=0 ; i<frames ; i++){
-    //         ptr[i]=(bufferMono[i] >>  nbits) << nbits;
-    //     }
-    // }

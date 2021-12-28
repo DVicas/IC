@@ -42,7 +42,7 @@ BitStream::BitStream(string inFile,string outFile){
         }
     }
     if(not outFile.empty()){
-        out.open(outFile, fstream::out);
+        out.open(outFile, fstream::out | fstream::app);
     }
 }
 void BitStream::writeBit(int bit){
