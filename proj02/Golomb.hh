@@ -9,22 +9,14 @@
 #include <bitset>
 
 using namespace std;
-int bin2d(int);
+
 
 class Golomb {
     public:
-        Golomb();
         string EncodeNumbers(int i, int m);
         short DecodeNumbers(string code, int m);
     private:
-        int zzz;
 };
-
-Golomb::Golomb() {
-    /**
-    * Golomb class constructor.
-    */
-}
 
 string Golomb::EncodeNumbers(int i, int m) {  
     /**
@@ -42,6 +34,7 @@ string Golomb::EncodeNumbers(int i, int m) {
     }
     str = str + "1";
 
+    int aux = 0;
     // check if m is a power of 2
     if (ceil(log2(m)) != floor(log2(m))) {
         int b = ceil(log2(m));
@@ -55,7 +48,7 @@ string Golomb::EncodeNumbers(int i, int m) {
             n_bits = b;
         }
 
-        int aux = 0;
+        aux = 0;
 
         string auxStr = bitset<64>(r).to_string();
         
@@ -68,7 +61,7 @@ string Golomb::EncodeNumbers(int i, int m) {
     }
     
     else{
-        int aux = 0;
+        aux = 0;
 
         string auxStr = bitset<64>(r).to_string();
 

@@ -6,6 +6,8 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgcodecs.hpp>
 
+#include "Golomb.hh"
+#include "BitStream.hh"
 
 using namespace std;
 using namespace cv;
@@ -13,16 +15,20 @@ using namespace cv;
 class LosslessCodec {
     public:
         void encode(string path);
+        void decode();
     private:
         void toYUV(Mat img, Mat* yuv_channels);
+        int calculate_m(Mat mat);
+        double calculate_entropy(int m);
         Mat predictor(Mat img);
 };
 
 void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
 
+    // convert to YUV colorspace
     cvtColor(img, img, COLOR_RGB2YUV);
-    // cvtColor(img, img, COLOR_RGB2YUV_I420);
     
+    // split YUV channels into 3 arrays
     split(img, yuv_channels);
 
     /****** DEBUG ******/
@@ -46,6 +52,8 @@ void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
 
     int u_i = 0, v_i = 0;
     int u_j = 0, v_j = 0;
+
+    // Convert to YUV4:2:0
     for (int i = 0; i < img.size().height; i+=2) {
         for (int j = 0; j < img.size().width; j+=2) {
             tmp_u.at<uchar>(u_i, u_j++) = yuv_channels[1].at<uchar>(i,j);
@@ -59,59 +67,20 @@ void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
     yuv_channels[2] = tmp_v;
 
     /***** MORE DEBUG ******/
-    imshow("Y", yuv_channels[0]);
-    imshow("U", yuv_channels[1]);
-    imshow("V", yuv_channels[2]);
-    waitKey(0);
+    // imshow("Y", yuv_channels[0]);
+    // imshow("U", yuv_channels[1]);
+    // imshow("V", yuv_channels[2]);
+    // waitKey(0);
 
     cout << yuv_channels[0].size() << endl;
     cout << yuv_channels[1].size() << endl;
     cout << yuv_channels[2].size() << endl;
-
-    // imshow("tmp_u", tmp_u);
-    // imshow("mat_v", mat_v);
-    // waitKey(0);
-
-    // Mat mat_y (img.size().height,img.size().width,CV_8UC1);
-    // Mat mat_u (img.size().height,img.size().width,CV_8UC1);
-    // Mat mat_v (img.size().height,img.size().width,CV_8UC1);
-    // float r, g, b;
-    // int y, u, v;
-    // for (int i = 0; i < img.size().height; i++) {
-    //     for (int j = 0; j < img.size().width; j++) {
-    //         r = img.at<Vec3b>(i,j)[0] ;
-    //         g = img.at<Vec3b>(i,j)[1] ;
-    //         b = img.at<Vec3b>(i,j)[2] ;
-
-    //         // y = 16 + 65.481*r + 128.553*g + 24.966*b;
-    //         // y = 0.299*r + 0.587*g + 0.114*b;
-    //         // u = 128 -0.147*r - 0.289*g + 0.436*b;
-    //         // v = 128 + 0.550*r - 0.515*g - 0.1*b;
-    //         y = 0.299*r + 0.587*g + 0.114*b;
-    //         u = 128 - 0.168736*r - 0.331264*g + 0.5*b;
-    //         v = 128 + 0.5*r - 0.418688*g - 0.081312*b;
-
-    //         mat_y.at<uchar>(i,j) = y;
-    //         // if (i%2 == 0 && j%2 == 0) {
-    //             mat_u.at<uchar>(i,j) = u;
-    //             mat_v.at<uchar>(i,j) = v;
-    //         // }
-    //     }
-    // }
-
-    // Mat channels[3] = {mat_y, mat_u, mat_v};
-    // Mat output;
-    // merge(channels, 3, output);
-    // imshow("test", output);
-    // waitKey(0);
-    //  cout << (int) img.at<Vec3b>(i,j)[1] << endl;
-
 }
 
 Mat LosslessCodec::predictor(Mat img) {
 
     Mat error (img.size().height, img.size().width, CV_8UC1);
-    int a = 0, b = 0, c = 0, x;
+    int a, b, c, x;
     for (int i = 0; i < img.size().height; i++) {
         for (int j = 0; j < img.size().width; j++) {
             // canto superior esquerdo
@@ -135,6 +104,8 @@ Mat LosslessCodec::predictor(Mat img) {
                 b = (int) img.at<uchar>(i-1,j);
                 c = (int) img.at<uchar>(i-1,j-1);
             }
+
+            // Prediction
             if (c >= max(a,b)) {
                 x = min(a,b);
             }
@@ -144,7 +115,7 @@ Mat LosslessCodec::predictor(Mat img) {
             else {
                 x = a + b - c;
             }
-            error.at<uchar>(i,j) = img.at<uchar>(i,j) - (uchar) x;
+            error.at<uchar>(i,j) = (uchar) ( ((int) img.at<uchar>(i,j)) - x);
             // cout << (int) error.at<uchar>(i,j) << endl;
         }
     }
@@ -161,12 +132,50 @@ void LosslessCodec::encode(string path) {
     Mat channels[3];
     toYUV(img, channels);
 
-    cout << channels << endl;
-
+    //one for each channel (3 channels) // Y = [0] / U = [1] / V = [2]
     Mat error[3];
-    for (int i = 0; i < 3; i++) { // yuv 3 channels
+    double entropy[3] = {0};
+    for (int i = 0; i < 3; i++) {   //fill error matrices and calc entropy 
         error[i] = predictor(channels[i]);
+        // entropy[i] = calculate_entropy(calculate_m(error[i]));
+    }
+    
+    Golomb g;
+    BitStream bs = BitStream("", "image.bin");
+    int m, val;
+    string bits;
+    for (int k = 0; k < 3; k++) {
+        m = calculate_m(error[k]);
+        
+        for (int i = 0; i < error[k].size().height; i++) {
+            for (int j = 0; j < error[k].size().width; j++){   
+                val = error[k].at<uchar>(i,j);
+                bits = g.EncodeNumbers(val, m);
+                bs.writeBits(bits);
+            }
+        }
     }
 
+}
 
- }
+int LosslessCodec::calculate_m(Mat mat) {
+    double mean;
+    int sum = 0;
+
+    for (int i = 0; i < mat.size().height; i++ ) {
+        for (int j = 0; j < mat.size().width; j++) {
+            sum += (int) mat.at<uchar>(i,j);
+        }
+    }
+    mean = sum / (mat.size().height * mat.size().width);
+
+    return ceil(-1/log2(mean/(mean+1)));
+}
+
+double LosslessCodec::calculate_entropy(int m) {
+    Golomb g = Golomb();
+
+    // g.EncodeNumbers();
+
+    return 0;
+}
