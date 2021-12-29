@@ -14,9 +14,9 @@ using namespace cv;
 int main(int argc, char* argv[]) {
 
     LosslessCodec g = LosslessCodec();
-    g.encode(argv[1]);
+    // g.encode(argv[1]);
 
-
+    g.decode(argv[1]);
     // Mat img = imread(argv[1], 0);
 
     // if (img.empty()) {
