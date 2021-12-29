@@ -28,25 +28,24 @@ void lossless_encode(short* error_buffer, int m);
 void lossless_decode(int m, char* audio_file);
 void lossy_encode(short* error_buffer, int m, int optimal_bits);
 void lossy_decode(int m, char* audio_file, int optimal_bits);
-void histograms(short* buffer, short* error_buffer);
+int histograms(short* buffer, short* error_buffer);
 
 int main(int argc, char* argv[]){
 
-    if(argc != 3){
+    if(argc != 4){
         cout << "WRONG NUMBER OF ARGUMENTS!" << endl;
         return 1;
     }
-    //encoding
-    int m = predictor(argv[1]);
 
-    //decoding
-    lossless_decode(m, argv[2]);
+    int x = atoi(argv[1]);
+    int m = predictor(argv[2], x, argv[3]);
+
 
     return 1;
 }
 
 
-int predictor(char* audio_file){
+int predictor(char* audio_file, int choose, char* out_file){
     /**
     * reads audio file, creates single channel buffer (avg of stereo), calculates
     * the residual values (uses folding to get only positive values) based on predictive coding and calculates optimal m; it then encodes the value
@@ -91,12 +90,23 @@ int predictor(char* audio_file){
     }
 
     //calculating histograms and entropy
-    histograms(mono_buffer, error_buffer);
+    int entropy = histograms(mono_buffer, error_buffer);
     //calculating optimal m
     int m = calculate_m(sum);
     //encoding
-    lossless_encode(error_buffer, m);
+    if(choose==0){
+        lossless_encode(error_buffer, m);
         cout << "COMPRESSING COMPLETE" << endl;
+        lossless_decode(m, out_file);
+        cout << "DECOMPRESSING COMPLETE" << endl;
+    }
+    else if (choose==1){
+        lossy_encode(entropy);
+        cout << "COMPRESSING COMPLETE" << endl;
+        lossy_decode(out_file);
+        cout << "DECOMPRESSING COMPLETE" << endl;
+    }
+    
     return m;
 }
 
@@ -219,22 +229,66 @@ void lossless_decode(int m, char* audio_file){
         << chrono::duration_cast<chrono::milliseconds>(end - start).count()
         << " ms" << endl;
 }
-void lossy_encode(short* error_buffer, int m, int entropy){
-    // void lossyCoding(int frames, int nbits){
-    //     // TODO calcular nbits otimo
 
-    //     int ptr[frames];
-    //     for(int i=0 ; i<frames ; i++){
-    //         ptr[i]=(bufferMono[i] >>  nbits) << nbits;
-    //     }
-    // }
+void lossy_encode(int entropy){
+    Golomb g;
+    BitStream bstream("", "golomb_output.bin");
+    string byte_entropy = bitset<8>(entropy).to_string();
+    string nitens_binary= bitset<32>(num_items).to_string();
+    int shiftBits = 16 - entropy;
+
+    bstream.writeBits(byte_entropy);
+    bstream.writeBits(nitens_binary);
     
-}
-void lossy_decode(int m, char* audio_file, int entropy){
+    short compressed;
+    for(int i=0; i<num_items; i++){
+        compressed = ( mono_buffer[i] >> shiftBits ) << shiftBits;
 
+        string binary  ("");
+        int mask = 1;
+        mask<<=shiftBits;
+        for(int i = shiftBits; i < 16; i++)
+        {
+            if((mask&compressed) >= 1)
+                binary = "1"+binary;
+            else
+                binary = "0"+binary;
+            mask<<=1;
+        }
+
+        bstream.writeBits(binary);
+    }
+    bstream.close();
+}
+void lossy_decode(char* audio_file){
+
+    short* buffer = (short*) malloc(num_items*sizeof(short));
+    BitStream bstream("golomb_output.bin", "");
+    string entropy_binary = bstream.readBits(8);
+    string nitens_binary = bstream.readBits(32);
+
+    int entropy = stoi(entropy_binary,0,2);
+    int nitens = stoi(nitens_binary,0,2);
+
+    SNDFILE* file;
+    sfinfo.channels = 1;
+
+    file=sf_open(audio_file,SFM_WRITE,&sfinfo);
+
+    for (int i=0 ; i<num_items ; i++){
+
+        string encoded = bstream.readBits(entropy);
+        short aux = (short) stoul(encoded,0,2);
+
+        buffer[i] = aux << (16-entropy);
+
+    }
+    int rd_data = sf_write_short(file, buffer, num_items); 
+    sf_close(file);
+    bstream.close();
 }
 
-void histograms(short* buffer, short* error_buffer){
+int histograms(short* buffer, short* error_buffer){
     /**
     * calculating histograms and respective entropies, being the error_buffer < buffer
     */ 
@@ -249,14 +303,6 @@ void histograms(short* buffer, short* error_buffer){
         buff_histo[buffer[i]]++;
     }
 
-    cout<<"--------BUFFER--------"<<endl;
-    for(it = buff_histo.begin(); it != buff_histo.end(); it++){
-        //cout << it->first << " " << it->second << endl;
-        p = (double)it->second / (num_items);
-        entropy += p * log(p);
-    }
-    cout << "ENTROPY -> " << entropy * -1 << endl;
-    
     entropy = 0;
     p = 0;
     
@@ -267,4 +313,16 @@ void histograms(short* buffer, short* error_buffer){
         entropy += p * log(p);
     }
     cout << "ENTROPY -> " << entropy * -1 << endl;
+
+    cout<<"--------BUFFER--------"<<endl;
+    for(it = buff_histo.begin(); it != buff_histo.end(); it++){
+        //cout << it->first << " " << it->second << endl;
+        p = (double)it->second / (num_items);
+        entropy += p * log(p);
+    }
+    cout << "ENTROPY -> " << entropy * -1 << endl;
+    
+    
+
+    return ceil(entropy);
 }
