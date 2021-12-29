@@ -1,6 +1,9 @@
-/*! \file b_ex1.cpp
-    \brief This file refers to the project's second challenge. It demonstrates the developed audio codec that relies on
-        predictive coding.
+/*! \file b.cpp
+    \brief This file refers to the project's second challenge. It demonstrates the developed audio codecs that relie on
+        predictive coding. To run the program successfuly you must include the option chosen (lossy or lossless), one audio file that
+        must be .wav and a file name for the decompressed audio.
+        lossless option -> ./b lossless sample06.wav example.wav
+        lossy option -> ./b lossy sample06.wav example.wav
 */
 #include <fstream>
 #include <iostream>
@@ -20,14 +23,14 @@ short* mono_buffer; /**< mono channel buffer for generic purposes */
 int num_items; /**< static number of items of the mono channel ( half of the wav fil samples ) */
 SF_INFO sfinfo; /**< audio file data structure */
 
-int predictor(char* audio_file);
+int predictor(char* audio_file, char* choose, char* out_file);
 short folding(short residual);
 short defolding(short n);
 int calculate_m(int sum);
 void lossless_encode(short* error_buffer, int m);
 void lossless_decode(int m, char* audio_file);
-void lossy_encode(short* error_buffer, int m, int optimal_bits);
-void lossy_decode(int m, char* audio_file, int optimal_bits);
+void lossy_encode(int m);
+void lossy_decode(char* out_file);
 int histograms(short* buffer, short* error_buffer);
 
 int main(int argc, char* argv[]){
@@ -37,15 +40,14 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-    int x = atoi(argv[1]);
-    int m = predictor(argv[2], x, argv[3]);
+    int m = predictor(argv[2], argv[1], argv[3]);
 
 
     return 1;
 }
 
 
-int predictor(char* audio_file, int choose, char* out_file){
+int predictor(char* audio_file, char* choose, char* out_file){
     /**
     * reads audio file, creates single channel buffer (avg of stereo), calculates
     * the residual values (uses folding to get only positive values) based on predictive coding and calculates optimal m; it then encodes the value
@@ -94,17 +96,27 @@ int predictor(char* audio_file, int choose, char* out_file){
     //calculating optimal m
     int m = calculate_m(sum);
     //encoding
-    if(choose==0){
+    if(strcmp(choose, "lossless") == 0){
+        auto start = chrono::steady_clock::now();
         lossless_encode(error_buffer, m);
-        cout << "COMPRESSING COMPLETE" << endl;
+        cout << "LOSSLESS COMPRESSING COMPLETE" << endl;
         lossless_decode(m, out_file);
-        cout << "DECOMPRESSING COMPLETE" << endl;
+        cout << "LOSSLESS DECOMPRESSING COMPLETE" << endl;
+        auto end = chrono::steady_clock::now();
+    cout << "Elapsed time in milliseconds: "
+        << chrono::duration_cast<chrono::milliseconds>(end - start).count()
+        << " ms" << endl;
     }
-    else if (choose==1){
+    else if (strcmp(choose, "lossy") == 0){
+        auto start = chrono::steady_clock::now();
         lossy_encode(entropy);
-        cout << "COMPRESSING COMPLETE" << endl;
+        cout << "LOSSY COMPRESSING COMPLETE" << endl;
         lossy_decode(out_file);
-        cout << "DECOMPRESSING COMPLETE" << endl;
+        cout << "LOSSY DECOMPRESSING COMPLETE" << endl;
+        auto end = chrono::steady_clock::now();
+    cout << "Elapsed time in milliseconds: "
+        << chrono::duration_cast<chrono::milliseconds>(end - start).count()
+        << " ms" << endl;
     }
     
     return m;
@@ -162,7 +174,6 @@ void lossless_encode(short* error_buffer, int m){
     BitStream bstream("", "golomb_output.bin");
     string code;
     string byte;
-    auto start = chrono::steady_clock::now();
     for(int i = 0; i < num_items; i++){
         code = g.EncodeNumbers(error_buffer[i], m);
         byte.append(code); 
@@ -182,10 +193,7 @@ void lossless_encode(short* error_buffer, int m){
     }
     bstream.writeBits(byte);
     bstream.close();
-    auto end = chrono::steady_clock::now();
-    cout << "Elapsed time in milliseconds: "
-        << chrono::duration_cast<chrono::milliseconds>(end - start).count()
-        << " ms" << endl;
+    
 }
 void lossless_decode(int m, char* audio_file){
     /**
@@ -195,7 +203,6 @@ void lossless_decode(int m, char* audio_file){
     * to get the 'real' value. Afterwards it reverses the residual encoding formula to decode the residual.
     * Finally, it will write the decoded data into an audio file with name given as arguments. 
     */ 
-    auto start = chrono::steady_clock::now();
     SNDFILE* file;
     sfinfo.channels = 1;
 
@@ -220,14 +227,9 @@ void lossless_decode(int m, char* audio_file){
         }
         buffer[i] = n + f_;
     }
-    cout << "DECOMPRESSING COMPLETE" << endl;
     int rd_data = sf_write_short(file, buffer, num_items); 
     sf_close(file);
     bstream.close();
-    auto end = chrono::steady_clock::now();
-    cout << "Elapsed time in milliseconds: "
-        << chrono::duration_cast<chrono::milliseconds>(end - start).count()
-        << " ms" << endl;
 }
 
 void lossy_encode(int entropy){
@@ -314,6 +316,9 @@ int histograms(short* buffer, short* error_buffer){
     }
     cout << "ENTROPY -> " << entropy * -1 << endl;
 
+    entropy = 0;
+    p = 0;
+
     cout<<"--------BUFFER--------"<<endl;
     for(it = buff_histo.begin(); it != buff_histo.end(); it++){
         //cout << it->first << " " << it->second << endl;
@@ -324,5 +329,5 @@ int histograms(short* buffer, short* error_buffer){
     
     
 
-    return ceil(entropy);
+    return entropy;
 }
