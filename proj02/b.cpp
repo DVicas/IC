@@ -57,6 +57,7 @@ int predictor(char* audio_file, char* choose, char* out_file){
     */
     SNDFILE* file;
     sfinfo.format=0;
+    string choose2 = (string) choose;
 
     file=sf_open(audio_file,SFM_READ,&sfinfo);
 
@@ -96,25 +97,25 @@ int predictor(char* audio_file, char* choose, char* out_file){
     //calculating optimal m
     int m = calculate_m(sum);
     //encoding
-    if(strcmp(choose, "lossless") == 0){
+    if(choose2.compare("lossless") == 0){
         auto start = chrono::steady_clock::now();
         lossless_encode(error_buffer, m);
         cout << "LOSSLESS COMPRESSING COMPLETE" << endl;
         lossless_decode(m, out_file);
         cout << "LOSSLESS DECOMPRESSING COMPLETE" << endl;
         auto end = chrono::steady_clock::now();
-    cout << "Elapsed time in milliseconds: "
+        cout << "Elapsed time in milliseconds: "
         << chrono::duration_cast<chrono::milliseconds>(end - start).count()
         << " ms" << endl;
     }
-    else if (strcmp(choose, "lossy") == 0){
+    else if (choose2.compare("lossy") == 0){
         auto start = chrono::steady_clock::now();
         lossy_encode(entropy);
         cout << "LOSSY COMPRESSING COMPLETE" << endl;
         lossy_decode(out_file);
         cout << "LOSSY DECOMPRESSING COMPLETE" << endl;
         auto end = chrono::steady_clock::now();
-    cout << "Elapsed time in milliseconds: "
+        cout << "Elapsed time in milliseconds: "
         << chrono::duration_cast<chrono::milliseconds>(end - start).count()
         << " ms" << endl;
     }
@@ -257,35 +258,37 @@ void lossy_encode(int entropy){
                 binary = "0"+binary;
             mask<<=1;
         }
-
+        
         bstream.writeBits(binary);
     }
     bstream.close();
 }
 void lossy_decode(char* audio_file){
 
-    short* buffer = (short*) malloc(num_items*sizeof(short));
     BitStream bstream("golomb_output.bin", "");
     string entropy_binary = bstream.readBits(8);
     string nitens_binary = bstream.readBits(32);
 
     int entropy = stoi(entropy_binary,0,2);
-    int nitens = stoi(nitens_binary,0,2);
+    int nitems = stoi(nitens_binary,0,2);
+
+    short* buffer = (short*) malloc(nitems*sizeof(short));
 
     SNDFILE* file;
     sfinfo.channels = 1;
 
     file=sf_open(audio_file,SFM_WRITE,&sfinfo);
 
-    for (int i=0 ; i<num_items ; i++){
+    for (int i=0 ; i<nitems ; i++){
 
         string encoded = bstream.readBits(entropy);
+        
         short aux = (short) stoul(encoded,0,2);
 
         buffer[i] = aux << (16-entropy);
 
     }
-    int rd_data = sf_write_short(file, buffer, num_items); 
+    int rd_data = sf_write_short(file, buffer, nitems); 
     sf_close(file);
     bstream.close();
 }
@@ -327,7 +330,5 @@ int histograms(short* buffer, short* error_buffer){
     }
     cout << "ENTROPY -> " << entropy * -1 << endl;
     
-    
-
-    return entropy;
+    return ceil(entropy*-1);
 }

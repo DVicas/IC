@@ -24,6 +24,8 @@ class BitStream{
         vector<int> buffer; 
         int z = 0;
         fstream in, out;
+        int bitcount = 0;
+        char curr_byte ;
 };
 
 BitStream::BitStream(string inFile,string outFile){
@@ -78,8 +80,8 @@ void BitStream::writeBits(string bits){
     /**
     * Writes the given bits on a file by storing them up to a byte, this requires external 'truncation' mechanisms; 
     */
-    int bitcount = 0;
-    char curr_byte ;
+    
+    
 
     if(out.is_open()){
         for(int i = 0; i < bits.length(); i++){
@@ -102,7 +104,7 @@ string BitStream::readBits(int bits){
     */
 
     if(in.is_open()){
-        string nbits;
+        string nbits = string();
 
         int y = z + bits;
 
@@ -132,6 +134,10 @@ void BitStream::close(void){
         in.close();
     }
     if(out.is_open()){
+        if (bitcount!=0){
+            curr_byte = curr_byte << (8-bitcount);
+            out << curr_byte;
+        }
         out.close();
     }
 
