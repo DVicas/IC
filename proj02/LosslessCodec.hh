@@ -28,7 +28,7 @@ class LosslessCodec {
         void encode(string path_to_img, string path_to_bin);
         void decode(string path_to_bin, string path_to_img);
     private:
-        void toYUV(Mat img, Mat* yuv_channels);     /** CONONONONONON */ 
+        void toYUV(Mat img, Mat* yuv_channels);    
         int calculate_m(Mat mat);
         double calculate_entropy(Mat mat);
         string toByte(string bits);
@@ -38,6 +38,9 @@ class LosslessCodec {
 };
 
 void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
+    /**
+    *Converting image in RGB colorspace to YUV 4:2:0 colorspace
+    */
 
     // convert to YUV colorspace
     cvtColor(img, img, COLOR_RGB2YUV);
@@ -164,11 +167,14 @@ Mat LosslessCodec::predictorDec(Mat err) {
 
 void LosslessCodec::encode(string path_to_img, string path_to_bin) {
     /**
-    * reads audio file, creates single channel buffer (avg of stereo), calculates
-    * the residual values (uses folding to get only positive values) based on predictive coding and calculates optimal m; it then encodes the value
-    * with its respective Golomb code and writes to file using BitStream class.
-    * It also compares the original buffer with the residual buffer (with calculated entropies); The residual
-    * buffer will always have less entropy.
+    * Reads the ppm image and outputs the resulting binfile to the specified path.
+    * Starts by encoding the each value of error matrix and then encodes the header. The header is composed of 16 bytes with the following information:
+    * 
+    * First 3 bytes include the m value of each channel (1 byte each).
+    * 
+    * 2 bytes for the height and width each of the image.
+    * 
+    * Remaining 9 bytes include the number of bytes to read for each channel.
     */
 
     Mat img = imread(path_to_img);
@@ -392,8 +398,8 @@ void LosslessCodec::decode(string path_to_bin, string path_to_img) {
 }
 
 int LosslessCodec::calculate_m(Mat mat) {
-/*!
- * … text …
+/**
+ * Used for calculating the optimal m for each channel
  */
 
 
@@ -411,7 +417,9 @@ int LosslessCodec::calculate_m(Mat mat) {
 }
 
 double LosslessCodec::calculate_entropy(Mat mat) {
-    
+    /**
+    * Calculates the entropy of a given image 
+    */  
     int bins[256] = {0};
     int val;
     for(int i = 0; i < mat.size().height; i++) {
@@ -433,7 +441,15 @@ double LosslessCodec::calculate_entropy(Mat mat) {
 }
 
 string LosslessCodec::toByte(string bits) {
-
+/**
+* Turns a string of n bits in Golomb Coding to byte sized string 
+* For the unary part '1's are added to the left most bits
+* The binary part '0's are added
+*
+* Eg. 001 110 -> 11111001 00000110
+* 
+* Most likely the reason the encoded filesize is so big 
+*/
     int sep = (int) bits.find("1");
     string q = bits.substr(0, sep+1);
     string r = bits.substr(sep+1);
@@ -450,7 +466,9 @@ string LosslessCodec::toByte(string bits) {
 }
 
 string LosslessCodec::removePadding(string bits) {
-
+/**
+* Removes the padding added by toByte() and returns a golomb code
+*/
     string q = bits.substr(0, bits.length()-8);
     string r = bits.substr(bits.length()-8);
     int n;
