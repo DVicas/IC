@@ -247,16 +247,16 @@ void lossy_encode(int entropy){
     for(int i=0; i<num_items; i++){
         compressed = ( mono_buffer[i] >> shiftBits ) << shiftBits;
 
-        string binary  ("");
-        int mask = 1;
-        mask<<=shiftBits;
+        string binary = string();
+        int aux = 1;
+        aux<<=shiftBits;
         for(int i = shiftBits; i < 16; i++)
         {
-            if((mask&compressed) >= 1)
+            if((aux&compressed) >= 1)
                 binary = "1"+binary;
             else
                 binary = "0"+binary;
-            mask<<=1;
+            aux<<=1;
         }
         
         bstream.writeBits(binary);
