@@ -1,3 +1,11 @@
+/*! \file b.cpp
+    \brief This file refers to the project's third challenge. It demonstrates the developed image codecs that relie on
+        predictive coding. To run the program successfuly you need one image file in .ppm, a file name for the compressed file and a file name for the decompressed file.
+        Eg.
+        Encode  -> ./LosslessCodecEncode.o path/to/img.ppm path/to/img.bin
+        Decode  -> ./LosslessCodecDecode.o path/to/img.bin path/to/img.ppm
+*/
+
 #include <string>
 #include <fstream>
 #include <vector>
@@ -14,20 +22,19 @@
 using namespace std;
 using namespace cv;
 
-vector<int> code_info;
 
 class LosslessCodec {
     public:
-        void encode(string path);
-        void decode(string path);
+        void encode(string path_to_img, string path_to_bin);
+        void decode(string path_to_bin, string path_to_img);
     private:
         void toYUV(Mat img, Mat* yuv_channels);
         int calculate_m(Mat mat);
         double calculate_entropy(Mat mat);
-        Mat predictor(Mat img);
         string toByte(string bits);
         string removePadding(string bits);
-        Mat predictorsad(Mat err);
+        Mat predictorEnc(Mat img);
+        Mat predictorDec(Mat err);
 };
 
 void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
@@ -38,22 +45,7 @@ void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
     // split YUV channels into 3 arrays
     split(img, yuv_channels);
 
-    /****** DEBUG ******/
-    // cout << yuv_channels << endl;    
-    // cout << yuv_channels[0] << endl;
-    // cout << yuv_channels[1] << endl;
-    // cout << yuv_channels[2] << endl;
-
-    // imshow("Y", channels[0]);
-    // imshow("U", channels[1]);
-    // imshow("V", channels[2]);
-    // waitKey(0);
-
-
-    // ofstream file;
-    // file.open("yuv");
-    // file << "---   Y   ---\n" << channels[0] << "\n---  U  ---\n" << channels[1] << "\n---  V  ---\n" << channels[2];
-
+    
     Mat tmp_u (img.size().height/2, img.size().width/2, CV_8UC1);
     Mat tmp_v (img.size().height/2, img.size().width/2, CV_8UC1);
 
@@ -72,19 +64,9 @@ void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
 
     yuv_channels[1] = tmp_u;
     yuv_channels[2] = tmp_v;
-
-    /***** MORE DEBUG ******/
-    // imshow("Y", yuv_channels[0]);
-    // imshow("U", yuv_channels[1]);
-    // imshow("V", yuv_channels[2]);
-    // waitKey(0);
-
-    // cout << yuv_channels[0].size() << endl;
-    // cout << yuv_channels[1].size() << endl;
-    // cout << yuv_channels[2].size() << endl;
 }
 
-Mat LosslessCodec::predictor(Mat img) {
+Mat LosslessCodec::predictorEnc(Mat img) {
 
     Mat error (img.size().height, img.size().width, CV_8UC1);
     int a, b, c, x;
@@ -129,7 +111,7 @@ Mat LosslessCodec::predictor(Mat img) {
     return error;
 }
 
-Mat LosslessCodec::predictorsad(Mat err) {
+Mat LosslessCodec::predictorDec(Mat err) {
 
     Mat img (err.size().height, err.size().width, CV_8UC1);
     int a, b, c, x;
@@ -168,14 +150,13 @@ Mat LosslessCodec::predictorsad(Mat err) {
                 x = a + b - c;
             }
             img.at<uchar>(i,j) = (uchar) ( ((int) err.at<uchar>(i,j)) + x);
-            // cout << (int) error.at<uchar>(i,j) << endl;
         }
     }
     return img;
 }
 
-void LosslessCodec::encode(string path) {
-    Mat img = imread(path);
+void LosslessCodec::encode(string path_to_img, string path_to_bin) {
+    Mat img = imread(path_to_img);
     if (img.empty()) {
         cout << "Error with image" << endl;
     }
@@ -187,15 +168,14 @@ void LosslessCodec::encode(string path) {
     Mat error[3];
     double entropy = 0;
     for (int i = 0; i < 3; i++) {   //fill error matrices and calc entropy 
-        error[i] = predictor(channels[i]);
+        error[i] = predictorEnc(channels[i]);
         entropy += calculate_entropy(channels[i]);
     }
     entropy = entropy / 3; //3 channels
-    cout << "entropy " << entropy << endl;
+    cout << "Avg. Entropy: " << entropy << endl << endl;
 
 
-
-    BitStream bs = BitStream("", "image.bin");
+    BitStream bs = BitStream("", path_to_bin);
     Golomb g;
     int m[3], nbytes[3] = {0};
     int val;
@@ -206,24 +186,16 @@ void LosslessCodec::encode(string path) {
         for (int i = 0; i < error[k].size().height; i++) {
             for (int j = 0; j < error[k].size().width; j++){   
                 val = error[k].at<uchar>(i,j);
-                // cout << val << endl;
                 golomb = g.EncodeNumbers(val, m[k]);
-                // cout << golomb << ' ';
                 bits = toByte(golomb);
-                // if (bits.length() % 8 != 0) { bits = toByte(bits); }
-                
                 bs.writeBits(bits);
-                nbytes[k] += bits.length(); 
+
+                nbytes[k] += bits.length() / 8; 
             }
         }
-                cout << nbytes[k] << endl;
-
-        cout << m[k] << endl;
     }
-    // bs.writeBits(bitset<16>(131071).to_string());
-    
 
-    // BOTTOMER
+    // BOTTOMER 
     bs.writeBits(bitset<8>(m[0]).to_string());
     bs.writeBits(bitset<8>(m[1]).to_string());
     bs.writeBits(bitset<8>(m[2]).to_string());
@@ -235,24 +207,22 @@ void LosslessCodec::encode(string path) {
 
 }
 
-void LosslessCodec::decode(String path) {
+void LosslessCodec::decode(string path_to_bin, string path_to_img) {
     
     int m[3], nbytes[3];
     int height, width;
     int i = 0, j = 0;
 
-    BitStream bs = BitStream("image.bin", "");
+    BitStream bs = BitStream(path_to_bin, "");
     Golomb g;
 
     vector<int> img_info = bs.getBuffer();
-    // vector<int>::iterator it = img_info.end() - 16*8;
 
     u_int aux = 0;
     vector<int>::iterator it = img_info.end() - 16*8;
 
-    // for (; it != img_info.end(); ++it) {
-    //     cout << 
-    // }
+
+    cout << "-----Bitstream Header-----\n" << endl;
 
     // Get each channel m value 
     for (i = 0; i < 3; i++) {
@@ -261,22 +231,24 @@ void LosslessCodec::decode(String path) {
         }
         m[i] = aux;
         aux = 0;
-        cout << "-----" << m[i] << endl;
     }
+    cout << "Y m: " << m[0] << endl;
+    cout << "U m: " << m[1] << endl;
+    cout << "V m: " << m[2] << endl;
 
     // Get img height and width
     for (j = 0; j < 16; ++it, j++) {
         aux = (aux << 1) | *it;
     }
-    cout << "-----" << height << endl;
     height = aux;
+    cout << "Height: " << height << endl;
 
     aux = 0;
     for (j = 0; j < 16; ++it, j++) {
         aux = (aux << 1) | *it;
     }
     width = aux;
-    cout << "-----" << width << endl;
+    cout << "Width: " << width << endl;
 
     aux = 0;
     // Get number of bytes per channel
@@ -286,8 +258,12 @@ void LosslessCodec::decode(String path) {
         }
         nbytes[i] = aux;
         aux = 0;
-        cout << "-----" << nbytes[i] << endl;
     }
+    cout << "Y bytes: " << nbytes[i] << endl;
+    cout << "U bytes: " << nbytes[i] << endl;
+    cout << "V bytes: " << nbytes[i] << endl;
+
+
 
     // create error matrices
     Mat errorY(height, width, CV_8UC1);
@@ -302,7 +278,7 @@ void LosslessCodec::decode(String path) {
     string bits = "";
     int tmp;
     for (int i = 0; i < 3; i++) {
-        for (unsigned int j = 0; j < nbytes[i] - 16; j++) {
+        for (unsigned int j = 0; j < nbytes[i] ; j++) {
             bits = bits + bs.readBits(8);
             if (unary_flag) {                       // we're reading the unary part
                 // while(bits.back() != '1') {
@@ -314,49 +290,78 @@ void LosslessCodec::decode(String path) {
                 unary_flag = 0;                     // the next byte is the binary part
             } else {
                 tmp = g.DecodeNumbers(removePadding(bits), m[i]);
+
+                // cout << "bits: " << bits << endl;
+                // cout << "no pad: " << removePadding(bits) << endl;
+                // cout << "golomb: " << g.DecodeNumbers(removePadding(bits), m[i]) << endl;
+
                 vals[i].push_back(tmp);
                 bits = "";
                 unary_flag = 1;
             }
-            // cout << j << " " ;
         }
-        cout << i << endl;
+        unary_flag = 1;
+        bits = "";
     }
-    cout << "ohhh " << endl;
 
+    //Put the values in the specific channel
+    it = vals[0].begin();
     for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
-            errorY.at<uchar>(i,j) = vals[0].back();
-            vals[0].pop_back();
+            errorY.at<uchar>(i,j) = *(it++);
         }
     }
 
+    it = vals[1].begin();
     for (i = 0; i < height/2; i++) {
         for (j = 0; j < width/2; j++) {
-            errorY.at<uchar>(i,j) = vals[1].back();
-            vals[1].pop_back();
+            errorU.at<uchar>(i,j) = *(it++);
         }
     }
 
+    it = vals[2].begin();
     for (i = 0; i < height/2; i++) {
         for (j = 0; j < width/2; j++) {
-            errorY.at<uchar>(i,j) = vals[2].back();
-            vals[2].pop_back();
+            errorV.at<uchar>(i,j) = *(it++);
         }
     }
 
     Mat img[3];
+    img[0] = predictorDec(errorY);
+    img[1] = predictorDec(errorU);
+    img[2] = predictorDec(errorV);
 
-    img[0] = predictorsad(errorY);
-    img[1] = predictorsad(errorU);
-    img[2] = predictorsad(errorV);
     
+    Mat tmp_u (height, width, CV_8UC1);
+    Mat tmp_v (height, width, CV_8UC1);
 
-    imshow("Y", img[0]);
-    imshow("U", img[1]);
-    imshow("V", img[2]);
+    int u_i = 0, v_i = 0;
+    int u_j = 0, v_j = 0;
+    for (int i = 0; i < height; i+=2) {                                     // Expand YUV4:2:0 to YUV4:4:4
+        for (int j = 0; j < width; j+=2) {
+            tmp_u.at<uchar>(i,j) = img[1].at<uchar>(u_i,u_j+1);
+            tmp_u.at<uchar>(i+1,j) = img[1].at<uchar>(u_i,u_j+1);
+            tmp_u.at<uchar>(i,j+1) = img[1].at<uchar>(u_i,u_j+1);
+            tmp_u.at<uchar>(i+1,j+1) = img[1].at<uchar>(u_i,u_j+1);
 
+            tmp_v.at<uchar>(i,j) = img[2].at<uchar>(v_i,v_j+1);
+            tmp_v.at<uchar>(i+1,j) = img[2].at<uchar>(v_i,v_j+1);
+            tmp_v.at<uchar>(i,j+1) = img[2].at<uchar>(v_i,v_j+1);
+            tmp_v.at<uchar>(i+1,j+1) = img[2].at<uchar>(v_i,v_j+1);
+            u_j++;v_j++;
+        }
+        u_i++; v_i++;
+        u_j = v_j = 0;
+    }
 
+    img[1] = tmp_u;
+    img[2] = tmp_v;
+
+    Mat yuv, rgb;
+    merge(img, 3, yuv);
+    cvtColor(yuv,rgb,COLOR_YUV2RGB);
+
+    imwrite(path_to_img, rgb);
 }
 
 int LosslessCodec::calculate_m(Mat mat) {
@@ -401,12 +406,6 @@ string LosslessCodec::toByte(string bits) {
     string q = bits.substr(0, sep+1);
     string r = bits.substr(sep+1);
 
-    // cout << "-------" << endl;
-    // cout << bits << endl;
-    // cout << q << endl;
-    // cout << r << endl;
-    // cout << "-------" << endl;
-
     while(q.length() % 8 != 0) {
         q = "1" + q;
     }
@@ -414,8 +413,6 @@ string LosslessCodec::toByte(string bits) {
     while (r.length() % 8 != 0) {
         r = "0" + r; 
     }
-    
-    // cout << "tem de ser crl: " << q + ' ' + r << endl;
 
     return q + r;
 }
@@ -433,7 +430,5 @@ string LosslessCodec::removePadding(string bits) {
     } else {
         q = q.substr(n);
     }
-
-    // cout << q+ ' ' + r << endl;
     return q + r;
 }

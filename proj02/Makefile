@@ -1,9 +1,12 @@
 CC= g++
-CFLAGS= -g -Wall `pkg-config --cflags opencv4`
-LFLAGS= `pkg-config --libs opencv4`
+FLAGS= -g -Wall `pkg-config --cflags --libs opencv4`
 
-LosslessCodec.o: test_lossCodec.cpp LosslessCodec.hh
-	$(CC) $(CFLAGS) $(LFLAGS) $< -o $@
+
+LosslessCodecEncode.o: test_lossEncode.cpp LosslessCodec.hh
+	$(CC) $(FLAGS) $< -o $@
+
+LosslessCodecDecode.o: test_lossDecode.cpp LosslessCodec.hh
+	$(CC) $(FLAGS) $< -o $@
 
 clean: 
 	rm *.o
