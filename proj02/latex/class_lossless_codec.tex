@@ -3,11 +3,33 @@
 \doxysubsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{class_lossless_codec_a1e7ed92eb85c18ae168059679dd8ec65}\label{class_lossless_codec_a1e7ed92eb85c18ae168059679dd8ec65}} 
-void {\bfseries encode} (string path)
+void \mbox{\hyperlink{class_lossless_codec_a2bf22e6d8c39a522fccb11db48215781}{encode}} (string path\+\_\+to\+\_\+img, string path\+\_\+to\+\_\+bin)
+\item 
+void \mbox{\hyperlink{class_lossless_codec_a82fbc48a6306fa75a48d496aa60d9eaf}{decode}} (string path\+\_\+to\+\_\+bin, string path\+\_\+to\+\_\+img)
 \end{DoxyCompactItemize}
 
 
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_lossless_codec_a82fbc48a6306fa75a48d496aa60d9eaf}\label{class_lossless_codec_a82fbc48a6306fa75a48d496aa60d9eaf}} 
+\index{LosslessCodec@{LosslessCodec}!decode@{decode}}
+\index{decode@{decode}!LosslessCodec@{LosslessCodec}}
+\doxysubsubsection{\texorpdfstring{decode()}{decode()}}
+{\footnotesize\ttfamily void Lossless\+Codec\+::decode (\begin{DoxyParamCaption}\item[{string}]{path\+\_\+to\+\_\+bin,  }\item[{string}]{path\+\_\+to\+\_\+img }\end{DoxyParamCaption})}
+
+Reads the bin file containing the encoded image and outputs the resulting image to the specified path. Starts by reading the last 16 bytes of the file, that contain the all the information necessary about the image to successfully decode it.
+
+First 3 bytes include the m value of each channel (1 byte each).
+
+2 bytes for the height and width of the image.
+
+Remaining 9 bytes include the number of bytes to read for each channel.\mbox{\Hypertarget{class_lossless_codec_a2bf22e6d8c39a522fccb11db48215781}\label{class_lossless_codec_a2bf22e6d8c39a522fccb11db48215781}} 
+\index{LosslessCodec@{LosslessCodec}!encode@{encode}}
+\index{encode@{encode}!LosslessCodec@{LosslessCodec}}
+\doxysubsubsection{\texorpdfstring{encode()}{encode()}}
+{\footnotesize\ttfamily void Lossless\+Codec\+::encode (\begin{DoxyParamCaption}\item[{string}]{path\+\_\+to\+\_\+img,  }\item[{string}]{path\+\_\+to\+\_\+bin }\end{DoxyParamCaption})}
+
+reads audio file, creates single channel buffer (avg of stereo), calculates the residual values (uses folding to get only positive values) based on predictive coding and calculates optimal m; it then encodes the value with its respective \mbox{\hyperlink{class_golomb}{Golomb}} code and writes to file using \mbox{\hyperlink{class_bit_stream}{Bit\+Stream}} class. It also compares the original buffer with the residual buffer (with calculated entropies); The residual buffer will always have less entropy.
+
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Lossless\+Codec.\+hh\end{DoxyCompactItemize}
+\mbox{\hyperlink{_lossless_codec_8hh}{Lossless\+Codec.\+hh}}\end{DoxyCompactItemize}

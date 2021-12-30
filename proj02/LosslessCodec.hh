@@ -1,4 +1,4 @@
-/*! \file b.cpp
+/*! \file LosslessCodec.hh
     \brief This file refers to the project's third challenge. It demonstrates the developed image codecs that relie on
         predictive coding. To run the program successfuly you need one image file in .ppm, a file name for the compressed file and a file name for the decompressed file.
         Eg.
@@ -28,7 +28,7 @@ class LosslessCodec {
         void encode(string path_to_img, string path_to_bin);
         void decode(string path_to_bin, string path_to_img);
     private:
-        void toYUV(Mat img, Mat* yuv_channels);
+        void toYUV(Mat img, Mat* yuv_channels);     /** CONONONONONON */ 
         int calculate_m(Mat mat);
         double calculate_entropy(Mat mat);
         string toByte(string bits);
@@ -67,6 +67,10 @@ void LosslessCodec::toYUV(Mat img, Mat* yuv_channels) {
 }
 
 Mat LosslessCodec::predictorEnc(Mat img) {
+    /**
+    * Non-linear predictor of JPEG-LS, receives the image matrix, calculates de residual values and returns the entropy matrix.
+    * 
+    */ 
 
     Mat error (img.size().height, img.size().width, CV_8UC1);
     int a, b, c, x;
@@ -112,6 +116,9 @@ Mat LosslessCodec::predictorEnc(Mat img) {
 }
 
 Mat LosslessCodec::predictorDec(Mat err) {
+    /**
+    * The same as the Encoder Predictor but used for decoding purposes.
+    */ 
 
     Mat img (err.size().height, err.size().width, CV_8UC1);
     int a, b, c, x;
@@ -156,6 +163,14 @@ Mat LosslessCodec::predictorDec(Mat err) {
 }
 
 void LosslessCodec::encode(string path_to_img, string path_to_bin) {
+    /**
+    * reads audio file, creates single channel buffer (avg of stereo), calculates
+    * the residual values (uses folding to get only positive values) based on predictive coding and calculates optimal m; it then encodes the value
+    * with its respective Golomb code and writes to file using BitStream class.
+    * It also compares the original buffer with the residual buffer (with calculated entropies); The residual
+    * buffer will always have less entropy.
+    */
+
     Mat img = imread(path_to_img);
     if (img.empty()) {
         cout << "Error with image" << endl;
@@ -208,6 +223,18 @@ void LosslessCodec::encode(string path_to_img, string path_to_bin) {
 }
 
 void LosslessCodec::decode(string path_to_bin, string path_to_img) {
+    /**
+    * Reads the bin file containing the encoded image and outputs the resulting image to the specified path.
+    * Starts by reading the last 16 bytes of the file, that contain the all the information necessary about the image 
+    * to successfully decode it.
+    * 
+    * First 3 bytes include the m value of each channel (1 byte each).
+    * 
+    * 2 bytes for the height and width of the image.
+    * 
+    * Remaining 9 bytes include the number of bytes to read for each channel.
+    * 
+    */ 
     
     int m[3], nbytes[3];
     int height, width;
@@ -365,6 +392,11 @@ void LosslessCodec::decode(string path_to_bin, string path_to_img) {
 }
 
 int LosslessCodec::calculate_m(Mat mat) {
+/*!
+ * … text …
+ */
+
+
     double mean;
     int sum = 0;
 

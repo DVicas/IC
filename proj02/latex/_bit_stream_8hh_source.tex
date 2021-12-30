@@ -22,92 +22,97 @@
 \DoxyCodeLine{22 }
 \DoxyCodeLine{23     \textcolor{keyword}{private}:}
 \DoxyCodeLine{24         vector<int> buffer; }
-\DoxyCodeLine{25         fstream in, out;}
-\DoxyCodeLine{26 \};}
-\DoxyCodeLine{27 }
-\DoxyCodeLine{28 \mbox{\hyperlink{class_bit_stream_a53f22d07f77bc7396456c89869d0d159}{BitStream::BitStream}}(\textcolor{keywordtype}{string} inFile,\textcolor{keywordtype}{string} outFile)\{}
-\DoxyCodeLine{34     \textcolor{keywordflow}{if}(not inFile.empty())\{}
-\DoxyCodeLine{35         in.open(inFile);}
-\DoxyCodeLine{36         \textcolor{keywordtype}{char} c;}
-\DoxyCodeLine{37         \textcolor{keywordflow}{while}(in.get(c))\{}
-\DoxyCodeLine{38             \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 7; i >= 0; i-\/-\/)\{}
-\DoxyCodeLine{39                 buffer.push\_back(((c >> i) \& 1));}
-\DoxyCodeLine{40             \}}
-\DoxyCodeLine{41         \}}
-\DoxyCodeLine{42     \}}
-\DoxyCodeLine{43     \textcolor{keywordflow}{if}(not outFile.empty())\{}
-\DoxyCodeLine{44         out.open(outFile, fstream::out | fstream::app);}
+\DoxyCodeLine{25         \textcolor{keywordtype}{int} z = 0;}
+\DoxyCodeLine{26         fstream in, out;}
+\DoxyCodeLine{27         \textcolor{keywordtype}{int} bitcount = 0;}
+\DoxyCodeLine{28         \textcolor{keywordtype}{char} curr\_byte ;}
+\DoxyCodeLine{29 \};}
+\DoxyCodeLine{30 }
+\DoxyCodeLine{31 \mbox{\hyperlink{class_bit_stream_a53f22d07f77bc7396456c89869d0d159}{BitStream::BitStream}}(\textcolor{keywordtype}{string} inFile,\textcolor{keywordtype}{string} outFile)\{}
+\DoxyCodeLine{37     \textcolor{keywordflow}{if}(not inFile.empty())\{}
+\DoxyCodeLine{38         in.open(inFile);}
+\DoxyCodeLine{39         \textcolor{keywordtype}{char} c;}
+\DoxyCodeLine{40         \textcolor{keywordflow}{while}(in.get(c))\{}
+\DoxyCodeLine{41             \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 7; i >= 0; i-\/-\/)\{}
+\DoxyCodeLine{42                 buffer.push\_back(((c >> i) \& 1));}
+\DoxyCodeLine{43             \}}
+\DoxyCodeLine{44         \}}
 \DoxyCodeLine{45     \}}
-\DoxyCodeLine{46 \}}
-\DoxyCodeLine{47 \textcolor{keywordtype}{void} \mbox{\hyperlink{class_bit_stream_aa86adee7779cf956e70348f392a1a985}{BitStream::writeBit}}(\textcolor{keywordtype}{int} bit)\{}
-\DoxyCodeLine{51     \textcolor{keywordflow}{if}(out.is\_open())\{}
-\DoxyCodeLine{52         out << bit;}
-\DoxyCodeLine{53         }
-\DoxyCodeLine{54     \}\textcolor{keywordflow}{else}\{}
-\DoxyCodeLine{55         cout << \textcolor{stringliteral}{"{}No outfile to write to!"{}} << endl;}
-\DoxyCodeLine{56     \}}
-\DoxyCodeLine{57 \}}
-\DoxyCodeLine{58 \textcolor{keywordtype}{int} \mbox{\hyperlink{class_bit_stream_a183934b27e677d0a84e00ce1888858e1}{BitStream::readBit}}()\{}
-\DoxyCodeLine{62     \textcolor{keywordflow}{if}(in.is\_open())\{}
-\DoxyCodeLine{63         vector<int> auxiliar;}
-\DoxyCodeLine{64         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 1; i < buffer.size(); i++)\{}
-\DoxyCodeLine{65             auxiliar.push\_back(buffer[i]);}
-\DoxyCodeLine{66         \}}
-\DoxyCodeLine{67         \textcolor{keywordtype}{int} bit = buffer.at(0);}
-\DoxyCodeLine{68         buffer = auxiliar;}
-\DoxyCodeLine{69         \textcolor{keywordflow}{return} bit;}
-\DoxyCodeLine{70         }
-\DoxyCodeLine{71     \}\textcolor{keywordflow}{else}\{}
-\DoxyCodeLine{72         cout << \textcolor{stringliteral}{"{}No input file to read!"{}} << endl;}
-\DoxyCodeLine{73         \textcolor{keywordflow}{return} 2;}
-\DoxyCodeLine{74     \}}
-\DoxyCodeLine{75 \}}
-\DoxyCodeLine{76 \textcolor{keywordtype}{void} \mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{BitStream::writeBits}}(\textcolor{keywordtype}{string} bits)\{}
-\DoxyCodeLine{80     \textcolor{keywordtype}{int} bitcount = 0;}
-\DoxyCodeLine{81     \textcolor{keywordtype}{char} curr\_byte ;}
-\DoxyCodeLine{82 }
-\DoxyCodeLine{83     \textcolor{keywordflow}{if}(out.is\_open())\{}
-\DoxyCodeLine{84         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < bits.length(); i++)\{}
-\DoxyCodeLine{85             curr\_byte = curr\_byte << 1 | (bits[i] -\/ \textcolor{charliteral}{'0'});}
-\DoxyCodeLine{86             bitcount++;}
-\DoxyCodeLine{87             \textcolor{keywordflow}{if} (bitcount == 8)\{}
-\DoxyCodeLine{88                 out << curr\_byte;}
-\DoxyCodeLine{89                 curr\_byte = 0;}
-\DoxyCodeLine{90                 bitcount = 0;}
-\DoxyCodeLine{91             \}}
-\DoxyCodeLine{92         \}}
-\DoxyCodeLine{93     \}\textcolor{keywordflow}{else}\{}
-\DoxyCodeLine{94         cout << \textcolor{stringliteral}{"{}No output file to write into!"{}} << endl;}
-\DoxyCodeLine{95     \}}
-\DoxyCodeLine{96 \}}
-\DoxyCodeLine{97 \textcolor{keywordtype}{string} \mbox{\hyperlink{class_bit_stream_af5135c8e770ed39dbc2a14426655eddd}{BitStream::readBits}}(\textcolor{keywordtype}{int} bits)\{}
-\DoxyCodeLine{103     \textcolor{keywordflow}{if}(in.is\_open())\{}
-\DoxyCodeLine{104         \textcolor{keywordtype}{string} nbits;}
-\DoxyCodeLine{105 }
-\DoxyCodeLine{106         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} x = 0; x < bits; x++)\{}
-\DoxyCodeLine{107              nbits += to\_string(buffer[x]);}
-\DoxyCodeLine{108         \}}
-\DoxyCodeLine{109         buffer.erase(buffer.begin(), buffer.begin() + bits);}
-\DoxyCodeLine{110         \textcolor{keywordflow}{return} nbits;}
-\DoxyCodeLine{111         }
-\DoxyCodeLine{112     \}\textcolor{keywordflow}{else}\{}
-\DoxyCodeLine{113         cout << \textcolor{stringliteral}{"{}No input file to read!"{}} << endl;}
-\DoxyCodeLine{114 }
-\DoxyCodeLine{115         \textcolor{keywordflow}{return} \textcolor{stringliteral}{"{}"{}};}
-\DoxyCodeLine{116     \}}
-\DoxyCodeLine{117 \}}
-\DoxyCodeLine{118 vector<int> \mbox{\hyperlink{class_bit_stream_a51741df884698cb9221e2548ca2012d2}{BitStream::getBuffer}}()\{}
-\DoxyCodeLine{122     \textcolor{keywordflow}{return} buffer;}
-\DoxyCodeLine{123 \}}
-\DoxyCodeLine{124 \textcolor{keywordtype}{void} \mbox{\hyperlink{class_bit_stream_a9c7473b195e8e7087c51dc67c92b5ea6}{BitStream::close}}(\textcolor{keywordtype}{void})\{}
-\DoxyCodeLine{129     \textcolor{keywordflow}{if}(in.is\_open())\{}
-\DoxyCodeLine{130         in.close();}
-\DoxyCodeLine{131     \}}
-\DoxyCodeLine{132     \textcolor{keywordflow}{if}(out.is\_open())\{}
-\DoxyCodeLine{133         out.close();}
-\DoxyCodeLine{134     \}}
-\DoxyCodeLine{135 }
-\DoxyCodeLine{136 }
-\DoxyCodeLine{137 \}}
+\DoxyCodeLine{46     \textcolor{keywordflow}{if}(not outFile.empty())\{}
+\DoxyCodeLine{47         out.open(outFile, fstream::out | fstream::app);}
+\DoxyCodeLine{48     \}}
+\DoxyCodeLine{49 \}}
+\DoxyCodeLine{50 \textcolor{keywordtype}{void} \mbox{\hyperlink{class_bit_stream_aa86adee7779cf956e70348f392a1a985}{BitStream::writeBit}}(\textcolor{keywordtype}{int} bit)\{}
+\DoxyCodeLine{54     \textcolor{keywordflow}{if}(out.is\_open())\{}
+\DoxyCodeLine{55         out << bit;}
+\DoxyCodeLine{56         }
+\DoxyCodeLine{57     \}\textcolor{keywordflow}{else}\{}
+\DoxyCodeLine{58         cout << \textcolor{stringliteral}{"{}No outfile to write to!"{}} << endl;}
+\DoxyCodeLine{59     \}}
+\DoxyCodeLine{60 \}}
+\DoxyCodeLine{61 \textcolor{keywordtype}{int} \mbox{\hyperlink{class_bit_stream_a183934b27e677d0a84e00ce1888858e1}{BitStream::readBit}}()\{}
+\DoxyCodeLine{65     \textcolor{keywordflow}{if}(in.is\_open())\{}
+\DoxyCodeLine{66         vector<int> auxiliar;}
+\DoxyCodeLine{67         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 1; i < buffer.size(); i++)\{}
+\DoxyCodeLine{68             auxiliar.push\_back(buffer[i]);}
+\DoxyCodeLine{69         \}}
+\DoxyCodeLine{70         \textcolor{keywordtype}{int} bit = buffer.at(0);}
+\DoxyCodeLine{71         buffer = auxiliar;}
+\DoxyCodeLine{72         \textcolor{keywordflow}{return} bit;}
+\DoxyCodeLine{73         }
+\DoxyCodeLine{74     \}\textcolor{keywordflow}{else}\{}
+\DoxyCodeLine{75         cout << \textcolor{stringliteral}{"{}No input file to read!"{}} << endl;}
+\DoxyCodeLine{76         \textcolor{keywordflow}{return} 2;}
+\DoxyCodeLine{77     \}}
+\DoxyCodeLine{78 \}}
+\DoxyCodeLine{79 \textcolor{keywordtype}{void} \mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{BitStream::writeBits}}(\textcolor{keywordtype}{string} bits)\{}
+\DoxyCodeLine{86     \textcolor{keywordflow}{if}(out.is\_open())\{}
+\DoxyCodeLine{87         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < bits.length(); i++)\{}
+\DoxyCodeLine{88             curr\_byte = curr\_byte << 1 | (bits[i] -\/ \textcolor{charliteral}{'0'});}
+\DoxyCodeLine{89             bitcount++;}
+\DoxyCodeLine{90             \textcolor{keywordflow}{if} (bitcount == 8)\{}
+\DoxyCodeLine{91                 out << curr\_byte;}
+\DoxyCodeLine{92                 curr\_byte = 0;}
+\DoxyCodeLine{93                 bitcount = 0;}
+\DoxyCodeLine{94             \}}
+\DoxyCodeLine{95         \}}
+\DoxyCodeLine{96     \}\textcolor{keywordflow}{else}\{}
+\DoxyCodeLine{97         cout << \textcolor{stringliteral}{"{}No output file to write into!"{}} << endl;}
+\DoxyCodeLine{98     \}}
+\DoxyCodeLine{99 \}}
+\DoxyCodeLine{100 \textcolor{keywordtype}{string} \mbox{\hyperlink{class_bit_stream_af5135c8e770ed39dbc2a14426655eddd}{BitStream::readBits}}(\textcolor{keywordtype}{int} bits)\{}
+\DoxyCodeLine{106     \textcolor{keywordflow}{if}(in.is\_open())\{}
+\DoxyCodeLine{107         \textcolor{keywordtype}{string} nbits = string();}
+\DoxyCodeLine{108 }
+\DoxyCodeLine{109         \textcolor{keywordtype}{int} y = z + bits;}
+\DoxyCodeLine{110 }
+\DoxyCodeLine{111         \textcolor{keywordflow}{for}(; z < y; z++)\{}
+\DoxyCodeLine{112              nbits += to\_string(buffer[z]);}
+\DoxyCodeLine{113         \}}
+\DoxyCodeLine{114         \textcolor{keywordflow}{return} nbits;}
+\DoxyCodeLine{115         }
+\DoxyCodeLine{116     \}\textcolor{keywordflow}{else}\{}
+\DoxyCodeLine{117         cout << \textcolor{stringliteral}{"{}No input file to read!"{}} << endl;}
+\DoxyCodeLine{118 }
+\DoxyCodeLine{119         \textcolor{keywordflow}{return} \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{120     \}}
+\DoxyCodeLine{121 \}}
+\DoxyCodeLine{122 vector<int> \mbox{\hyperlink{class_bit_stream_a51741df884698cb9221e2548ca2012d2}{BitStream::getBuffer}}()\{}
+\DoxyCodeLine{126     \textcolor{keywordflow}{return} buffer;}
+\DoxyCodeLine{127 \}}
+\DoxyCodeLine{128 \textcolor{keywordtype}{void} \mbox{\hyperlink{class_bit_stream_a9c7473b195e8e7087c51dc67c92b5ea6}{BitStream::close}}(\textcolor{keywordtype}{void})\{}
+\DoxyCodeLine{133     \textcolor{keywordflow}{if}(in.is\_open())\{}
+\DoxyCodeLine{134         in.close();}
+\DoxyCodeLine{135     \}}
+\DoxyCodeLine{136     \textcolor{keywordflow}{if}(out.is\_open())\{}
+\DoxyCodeLine{137         \textcolor{keywordflow}{if} (bitcount!=0)\{}
+\DoxyCodeLine{138             curr\_byte = curr\_byte << (8-\/bitcount);}
+\DoxyCodeLine{139             out << curr\_byte;}
+\DoxyCodeLine{140         \}}
+\DoxyCodeLine{141         out.close();}
+\DoxyCodeLine{142     \}}
+\DoxyCodeLine{143 }
+\DoxyCodeLine{144 }
+\DoxyCodeLine{145 \}}
 
 \end{DoxyCode}

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['predictor_0',['predictor',['../b__ex1_8cpp.html#a59b1aa2f8298de2d72fbbea3db283aab',1,'b_ex1.cpp']]]
+  ['lossless_5fdecode_0',['lossless_decode',['../b_8cpp.html#af97415554e20f9ec0a1c10afdcd88645',1,'b.cpp']]],
+  ['lossless_5fencode_1',['lossless_encode',['../b_8cpp.html#ad8c531393121ad3a3c773816c8848f06',1,'b.cpp']]]
 ];

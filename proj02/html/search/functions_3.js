@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['encode_0',['encode',['../b__ex1_8cpp.html#a1d1c902f68ac27da721d0978b40951e8',1,'b_ex1.cpp']]],
+  ['encode_0',['encode',['../class_lossless_codec.html#a2bf22e6d8c39a522fccb11db48215781',1,'LosslessCodec']]],
   ['encodenumbers_1',['EncodeNumbers',['../class_golomb.html#a8e035d229c028fbabc57ffe94211fad6',1,'Golomb']]]
 ];

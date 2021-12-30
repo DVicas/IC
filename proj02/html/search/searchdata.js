@@ -2,8 +2,8 @@ var indexSectionsWithContent =
 {
   0: "bcdefghlmnprstw",
   1: "bgl",
-  2: "bgt",
-  3: "bcdefghprw",
+  2: "bglt",
+  3: "bcdefghlprw",
   4: "cmns"
 };
 

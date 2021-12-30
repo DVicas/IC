@@ -72,10 +72,73 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1e7ed92eb85c18ae168059679dd8ec65"><td class="memItemLeft" align="right" valign="top"><a id="a1e7ed92eb85c18ae168059679dd8ec65" name="a1e7ed92eb85c18ae168059679dd8ec65"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>encode</b> (string path)</td></tr>
-<tr class="separator:a1e7ed92eb85c18ae168059679dd8ec65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bf22e6d8c39a522fccb11db48215781"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_lossless_codec.html#a2bf22e6d8c39a522fccb11db48215781">encode</a> (string path_to_img, string path_to_bin)</td></tr>
+<tr class="separator:a2bf22e6d8c39a522fccb11db48215781"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82fbc48a6306fa75a48d496aa60d9eaf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_lossless_codec.html#a82fbc48a6306fa75a48d496aa60d9eaf">decode</a> (string path_to_bin, string path_to_img)</td></tr>
+<tr class="separator:a82fbc48a6306fa75a48d496aa60d9eaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a82fbc48a6306fa75a48d496aa60d9eaf" name="a82fbc48a6306fa75a48d496aa60d9eaf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82fbc48a6306fa75a48d496aa60d9eaf">&#9670;&nbsp;</a></span>decode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LosslessCodec::decode </td>
+          <td>(</td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>path_to_bin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>path_to_img</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >Reads the bin file containing the encoded image and outputs the resulting image to the specified path. Starts by reading the last 16 bytes of the file, that contain the all the information necessary about the image to successfully decode it.</p>
+<p >First 3 bytes include the m value of each channel (1 byte each).</p>
+<p >2 bytes for the height and width of the image.</p>
+<p >Remaining 9 bytes include the number of bytes to read for each channel.</p>
+
+</div>
+</div>
+<a id="a2bf22e6d8c39a522fccb11db48215781" name="a2bf22e6d8c39a522fccb11db48215781"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bf22e6d8c39a522fccb11db48215781">&#9670;&nbsp;</a></span>encode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LosslessCodec::encode </td>
+          <td>(</td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>path_to_img</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>path_to_bin</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p >reads audio file, creates single channel buffer (avg of stereo), calculates the residual values (uses folding to get only positive values) based on predictive coding and calculates optimal m; it then encodes the value with its respective <a class="el" href="class_golomb.html">Golomb</a> code and writes to file using <a class="el" href="class_bit_stream.html">BitStream</a> class. It also compares the original buffer with the residual buffer (with calculated entropies); The residual buffer will always have less entropy.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="_lossless_codec_8hh_source.html">LosslessCodec.hh</a></li>
 </ul>

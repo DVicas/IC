@@ -9,111 +9,95 @@
 \DoxyCodeLine{9 \textcolor{preprocessor}{\#include <bitset>}}
 \DoxyCodeLine{10 }
 \DoxyCodeLine{11 \textcolor{keyword}{using namespace }std;}
-\DoxyCodeLine{12 \textcolor{keywordtype}{int} bin2d(\textcolor{keywordtype}{int});}
+\DoxyCodeLine{12 }
 \DoxyCodeLine{13 }
 \DoxyCodeLine{14 \textcolor{keyword}{class }\mbox{\hyperlink{class_golomb}{Golomb}} \{}
 \DoxyCodeLine{15     \textcolor{keyword}{public}:}
-\DoxyCodeLine{16         \mbox{\hyperlink{class_golomb_aa6103d56ebec9decc11a69bf6be83208}{Golomb}}();}
-\DoxyCodeLine{17         \textcolor{keywordtype}{string} \mbox{\hyperlink{class_golomb_a8e035d229c028fbabc57ffe94211fad6}{EncodeNumbers}}(\textcolor{keywordtype}{int} i, \textcolor{keywordtype}{int} m);}
-\DoxyCodeLine{18         \textcolor{keywordtype}{short} \mbox{\hyperlink{class_golomb_a8e37819cfe368b42e0fcd4be22763f42}{DecodeNumbers}}(\textcolor{keywordtype}{string} code, \textcolor{keywordtype}{int} m);}
-\DoxyCodeLine{19     \textcolor{keyword}{private}:}
-\DoxyCodeLine{20         \textcolor{keywordtype}{int} zzz;}
-\DoxyCodeLine{21 \};}
-\DoxyCodeLine{22 }
-\DoxyCodeLine{23 \mbox{\hyperlink{class_golomb_aa6103d56ebec9decc11a69bf6be83208}{Golomb::Golomb}}() \{}
-\DoxyCodeLine{27 \}}
+\DoxyCodeLine{16         \textcolor{keywordtype}{string} \mbox{\hyperlink{class_golomb_a8e035d229c028fbabc57ffe94211fad6}{EncodeNumbers}}(\textcolor{keywordtype}{int} i, \textcolor{keywordtype}{int} m);}
+\DoxyCodeLine{17         \textcolor{keywordtype}{short} \mbox{\hyperlink{class_golomb_a8e37819cfe368b42e0fcd4be22763f42}{DecodeNumbers}}(\textcolor{keywordtype}{string} code, \textcolor{keywordtype}{int} m);}
+\DoxyCodeLine{18     \textcolor{keyword}{private}:}
+\DoxyCodeLine{19 \};}
+\DoxyCodeLine{20 }
+\DoxyCodeLine{21 \textcolor{keywordtype}{string} \mbox{\hyperlink{class_golomb_a8e035d229c028fbabc57ffe94211fad6}{Golomb::EncodeNumbers}}(\textcolor{keywordtype}{int} i, \textcolor{keywordtype}{int} m) \{  }
+\DoxyCodeLine{26     \textcolor{keywordtype}{int} q, r;}
+\DoxyCodeLine{27     \textcolor{keywordtype}{string} str; }
 \DoxyCodeLine{28 }
-\DoxyCodeLine{29 \textcolor{keywordtype}{string} \mbox{\hyperlink{class_golomb_a8e035d229c028fbabc57ffe94211fad6}{Golomb::EncodeNumbers}}(\textcolor{keywordtype}{int} i, \textcolor{keywordtype}{int} m) \{  }
-\DoxyCodeLine{34     \textcolor{keywordtype}{int} q, r;}
-\DoxyCodeLine{35     \textcolor{keywordtype}{string} str; }
+\DoxyCodeLine{29     q = floor(i/m);}
+\DoxyCodeLine{30     r = i -\/ q*m;}
+\DoxyCodeLine{31 }
+\DoxyCodeLine{32     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < q; j++) \{}
+\DoxyCodeLine{33         str = str + \textcolor{charliteral}{'0'};}
+\DoxyCodeLine{34     \}}
+\DoxyCodeLine{35     str = str + \textcolor{stringliteral}{"{}1"{}};}
 \DoxyCodeLine{36 }
-\DoxyCodeLine{37     q = floor(i/m);}
-\DoxyCodeLine{38     r = i -\/ q*m;}
-\DoxyCodeLine{39 }
-\DoxyCodeLine{40     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < q; j++) \{}
-\DoxyCodeLine{41         str = str + \textcolor{charliteral}{'0'};}
-\DoxyCodeLine{42     \}}
-\DoxyCodeLine{43     str = str + \textcolor{stringliteral}{"{}1"{}};}
-\DoxyCodeLine{44 }
-\DoxyCodeLine{45     \textcolor{comment}{// check if m is a power of 2}}
-\DoxyCodeLine{46     \textcolor{keywordflow}{if} (ceil(log2(m)) != floor(log2(m))) \{}
-\DoxyCodeLine{47         \textcolor{keywordtype}{int} b = ceil(log2(m));}
-\DoxyCodeLine{48         \textcolor{keywordtype}{int} n\_bits;}
-\DoxyCodeLine{49 }
-\DoxyCodeLine{50         \textcolor{keywordflow}{if} (r<b)\{}
-\DoxyCodeLine{51             n\_bits = b-\/1;}
-\DoxyCodeLine{52         \}}
-\DoxyCodeLine{53         \textcolor{keywordflow}{else}\{}
-\DoxyCodeLine{54             r = r+pow(2,b)-\/m;}
-\DoxyCodeLine{55             n\_bits = b;}
-\DoxyCodeLine{56         \}}
-\DoxyCodeLine{57 }
-\DoxyCodeLine{58         \textcolor{keywordtype}{int} aux = 0;}
-\DoxyCodeLine{59 }
-\DoxyCodeLine{60         \textcolor{keywordtype}{string} auxStr = bitset<64>(r).to\_string();}
-\DoxyCodeLine{61         }
-\DoxyCodeLine{62         \textcolor{keywordtype}{string} reverse = string();}
-\DoxyCodeLine{63 }
-\DoxyCodeLine{64         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j=63; j>63-\/n\_bits; j-\/-\/)\{}
-\DoxyCodeLine{65             reverse=auxStr[j]+reverse;}
-\DoxyCodeLine{66         \}}
-\DoxyCodeLine{67         str+=reverse;}
-\DoxyCodeLine{68     \}}
-\DoxyCodeLine{69     }
-\DoxyCodeLine{70     \textcolor{keywordflow}{else}\{}
-\DoxyCodeLine{71         \textcolor{keywordtype}{int} aux = 0;}
-\DoxyCodeLine{72 }
-\DoxyCodeLine{73         \textcolor{keywordtype}{string} auxStr = bitset<64>(r).to\_string();}
-\DoxyCodeLine{74 }
-\DoxyCodeLine{75         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j=0; j<64; j++)\{}
-\DoxyCodeLine{76             \textcolor{keywordflow}{if}(auxStr[j]==\textcolor{charliteral}{'1'} \&\& aux==0)\{}
-\DoxyCodeLine{77                 aux=1;}
-\DoxyCodeLine{78                 str+=auxStr[j];}
-\DoxyCodeLine{79             \}}
-\DoxyCodeLine{80             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (aux==1)}
-\DoxyCodeLine{81             \{}
-\DoxyCodeLine{82                 str+=auxStr[j];}
-\DoxyCodeLine{83             \}}
-\DoxyCodeLine{84             }
-\DoxyCodeLine{85         \}}
-\DoxyCodeLine{86     \}}
-\DoxyCodeLine{87     \textcolor{keywordflow}{return} str;}
-\DoxyCodeLine{88 \}}
-\DoxyCodeLine{89 }
-\DoxyCodeLine{90 \textcolor{keywordtype}{short} \mbox{\hyperlink{class_golomb_a8e37819cfe368b42e0fcd4be22763f42}{Golomb::DecodeNumbers}}(\textcolor{keywordtype}{string} bits, \textcolor{keywordtype}{int} m) \{}
-\DoxyCodeLine{94     \textcolor{keywordtype}{int} k = ceil(log2(m));}
-\DoxyCodeLine{95     \textcolor{keywordtype}{int} t = pow(2, k) -\/ m;}
-\DoxyCodeLine{96     \textcolor{keywordtype}{short} s;}
-\DoxyCodeLine{97     \textcolor{keywordtype}{int} r2;}
-\DoxyCodeLine{98     \textcolor{keywordtype}{int} r;}
+\DoxyCodeLine{37     \textcolor{keywordtype}{int} aux = 0;}
+\DoxyCodeLine{38     \textcolor{comment}{// check if m is a power of 2}}
+\DoxyCodeLine{39     \textcolor{keywordflow}{if} (ceil(log2(m)) != floor(log2(m))) \{}
+\DoxyCodeLine{40         \textcolor{keywordtype}{int} b = ceil(log2(m));}
+\DoxyCodeLine{41         \textcolor{keywordtype}{int} n\_bits;}
+\DoxyCodeLine{42 }
+\DoxyCodeLine{43         \textcolor{keywordflow}{if} (r < pow(2, b) -\/ m)\{}
+\DoxyCodeLine{44             n\_bits = b -\/ 1;}
+\DoxyCodeLine{45         \}}
+\DoxyCodeLine{46         \textcolor{keywordflow}{else}\{}
+\DoxyCodeLine{47             r = r + pow(2,b) -\/ m;}
+\DoxyCodeLine{48             n\_bits = b;}
+\DoxyCodeLine{49         \}}
+\DoxyCodeLine{50 }
+\DoxyCodeLine{51         \textcolor{keywordtype}{string} auxStr = bitset<64>(r).to\_string();}
+\DoxyCodeLine{52         }
+\DoxyCodeLine{53         \textcolor{keywordtype}{string} reverse = string();}
+\DoxyCodeLine{54 }
+\DoxyCodeLine{55         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j=63; j>63-\/n\_bits; j-\/-\/)\{}
+\DoxyCodeLine{56             reverse=auxStr[j]+reverse;}
+\DoxyCodeLine{57         \}}
+\DoxyCodeLine{58         str+=reverse;}
+\DoxyCodeLine{59     \}}
+\DoxyCodeLine{60     }
+\DoxyCodeLine{61     \textcolor{keywordflow}{else}\{}
+\DoxyCodeLine{62 }
+\DoxyCodeLine{63         \textcolor{keywordtype}{string} auxStr = bitset<64>(r).to\_string();}
+\DoxyCodeLine{64 }
+\DoxyCodeLine{65         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j=0; j<64; j++)\{}
+\DoxyCodeLine{66             \textcolor{keywordflow}{if}(auxStr[j]==\textcolor{charliteral}{'1'} \&\& aux==0)\{}
+\DoxyCodeLine{67                 aux=1;}
+\DoxyCodeLine{68                 str+=auxStr[j];}
+\DoxyCodeLine{69             \}}
+\DoxyCodeLine{70             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (aux==1)}
+\DoxyCodeLine{71             \{}
+\DoxyCodeLine{72                 str+=auxStr[j];}
+\DoxyCodeLine{73             \}}
+\DoxyCodeLine{74             }
+\DoxyCodeLine{75         \}}
+\DoxyCodeLine{76     \}}
+\DoxyCodeLine{77     \textcolor{keywordflow}{return} str;}
+\DoxyCodeLine{78 \}}
+\DoxyCodeLine{79 }
+\DoxyCodeLine{80 \textcolor{keywordtype}{short} \mbox{\hyperlink{class_golomb_a8e37819cfe368b42e0fcd4be22763f42}{Golomb::DecodeNumbers}}(\textcolor{keywordtype}{string} bits, \textcolor{keywordtype}{int} m) \{}
+\DoxyCodeLine{87     \textcolor{keywordtype}{short} s;}
+\DoxyCodeLine{88     \textcolor{keywordtype}{int} r2;}
+\DoxyCodeLine{89     \textcolor{keywordtype}{int} r;}
+\DoxyCodeLine{90 }
+\DoxyCodeLine{91     \textcolor{keywordtype}{int} sep = (int) bits.find(\textcolor{stringliteral}{"{}1"{}});}
+\DoxyCodeLine{92     \textcolor{keywordtype}{string} in\_q = bits.substr(0, sep);}
+\DoxyCodeLine{93     \textcolor{keywordtype}{string} in\_r = bits.substr(sep + 1);}
+\DoxyCodeLine{94 }
+\DoxyCodeLine{95     \textcolor{comment}{//quotient}}
+\DoxyCodeLine{96     \textcolor{keywordtype}{int} q = in\_q.size();}
+\DoxyCodeLine{97     }
+\DoxyCodeLine{98     r = stoi(in\_r, 0, 2);}
 \DoxyCodeLine{99 }
-\DoxyCodeLine{100     \textcolor{keywordtype}{int} sep = (int) bits.find(\textcolor{stringliteral}{"{}1"{}});}
-\DoxyCodeLine{101     \textcolor{keywordtype}{string} in\_q = bits.substr(0, sep);}
-\DoxyCodeLine{102     \textcolor{keywordtype}{string} in\_r = bits.substr(sep + 1);}
-\DoxyCodeLine{103     \textcolor{keywordflow}{if} (in\_r.length() == 1) }
-\DoxyCodeLine{104         in\_r = \textcolor{charliteral}{'0'} + in\_r;}
-\DoxyCodeLine{105     \textcolor{comment}{//quotient}}
-\DoxyCodeLine{106     \textcolor{keywordtype}{int} q = in\_q.size();}
-\DoxyCodeLine{107     \textcolor{comment}{//store and remove last bit (of the remainder) to have k -\/ 1 bits}}
-\DoxyCodeLine{108     \textcolor{keywordtype}{char} last = in\_r.back();}
-\DoxyCodeLine{109     \textcolor{keywordtype}{int} l\_bit = last -\/ \textcolor{charliteral}{'0'};}
-\DoxyCodeLine{110     in\_r.pop\_back(); }
-\DoxyCodeLine{111     \textcolor{keywordflow}{if}(in\_r.length() == 0)\{}
-\DoxyCodeLine{112         r = 0;}
-\DoxyCodeLine{113     \}\textcolor{keywordflow}{else}\{}
-\DoxyCodeLine{114         r = stoi(in\_r, 0, 2);\textcolor{comment}{//decimal conversion of the k -\/ 1 bits}}
-\DoxyCodeLine{115     \}}
-\DoxyCodeLine{116     }
-\DoxyCodeLine{117     }
-\DoxyCodeLine{118     \textcolor{keywordflow}{if}(r < t)\{}
-\DoxyCodeLine{119         s = q * m + r;}
-\DoxyCodeLine{120     \}\textcolor{keywordflow}{else}\{}
-\DoxyCodeLine{121         r2 = r * 2 + l\_bit;}
-\DoxyCodeLine{122         s = q * m + r2 -\/ t;}
-\DoxyCodeLine{123         r = r + l\_bit;}
-\DoxyCodeLine{124     \}}
-\DoxyCodeLine{125 }
-\DoxyCodeLine{126     \textcolor{keywordflow}{return} s;}
-\DoxyCodeLine{127 \}}
+\DoxyCodeLine{100     \textcolor{keywordflow}{if}(ceil(log2(m)) != floor(log2(m)))\{}
+\DoxyCodeLine{101         \textcolor{comment}{//not power of 2}}
+\DoxyCodeLine{102         \textcolor{keywordtype}{int} b = ceil(log2(m));}
+\DoxyCodeLine{103 }
+\DoxyCodeLine{104         \textcolor{keywordflow}{if}(r >= pow(2, b) -\/ m)\{}
+\DoxyCodeLine{105             r = r -\/ pow(2, b) + m;}
+\DoxyCodeLine{106         \}}
+\DoxyCodeLine{107     \}}
+\DoxyCodeLine{108     }
+\DoxyCodeLine{109     \textcolor{keywordflow}{return} q*m + r;}
+\DoxyCodeLine{110     }
+\DoxyCodeLine{111 \}}
 
 \end{DoxyCode}

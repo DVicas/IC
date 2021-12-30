@@ -1,177 +1,429 @@
 \hypertarget{_lossless_codec_8hh_source}{}\doxysection{Lossless\+Codec.\+hh}
-
+\mbox{\hyperlink{_lossless_codec_8hh}{Go to the documentation of this file.}}
 \begin{DoxyCode}{0}
-\DoxyCodeLine{1 \textcolor{preprocessor}{\#include <string>}}
-\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <fstream>}}
-\DoxyCodeLine{3 }
-\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <opencv2/opencv.hpp>}}
-\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <opencv2/highgui.hpp>}}
-\DoxyCodeLine{6 \textcolor{preprocessor}{\#include <opencv2/core/mat.hpp>}}
-\DoxyCodeLine{7 \textcolor{preprocessor}{\#include <opencv2/imgcodecs.hpp>}}
-\DoxyCodeLine{8 }
-\DoxyCodeLine{9 }
-\DoxyCodeLine{10 \textcolor{keyword}{using namespace }std;}
-\DoxyCodeLine{11 \textcolor{keyword}{using namespace }cv;}
-\DoxyCodeLine{12 }
-\DoxyCodeLine{13 \textcolor{keyword}{class }\mbox{\hyperlink{class_lossless_codec}{LosslessCodec}} \{}
-\DoxyCodeLine{14     \textcolor{keyword}{public}:}
-\DoxyCodeLine{15         \textcolor{keywordtype}{void} encode(\textcolor{keywordtype}{string} path);}
-\DoxyCodeLine{16     \textcolor{keyword}{private}:}
-\DoxyCodeLine{17         \textcolor{keywordtype}{void} toYUV(Mat img, Mat* yuv\_channels);}
-\DoxyCodeLine{18         Mat predictor(Mat img);}
-\DoxyCodeLine{19 \};}
-\DoxyCodeLine{20 }
-\DoxyCodeLine{21 \textcolor{keywordtype}{void} LosslessCodec::toYUV(Mat img, Mat* yuv\_channels) \{}
-\DoxyCodeLine{22 }
-\DoxyCodeLine{23     cvtColor(img, img, COLOR\_RGB2YUV);}
-\DoxyCodeLine{24     \textcolor{comment}{// cvtColor(img, img, COLOR\_RGB2YUV\_I420);}}
-\DoxyCodeLine{25     }
-\DoxyCodeLine{26     split(img, yuv\_channels);}
-\DoxyCodeLine{27 }
-\DoxyCodeLine{28 \textcolor{comment}{    /****** DEBUG ******/}}
-\DoxyCodeLine{29     cout << yuv\_channels << endl;    }
-\DoxyCodeLine{30     cout << yuv\_channels[0].size() << endl;}
-\DoxyCodeLine{31     cout << yuv\_channels[1].size() << endl;}
-\DoxyCodeLine{32     cout << yuv\_channels[2].size() << endl;}
-\DoxyCodeLine{33 }
-\DoxyCodeLine{34     \textcolor{comment}{// imshow("{}Y"{}, channels[0]);}}
-\DoxyCodeLine{35     \textcolor{comment}{// imshow("{}U"{}, channels[1]);}}
-\DoxyCodeLine{36     \textcolor{comment}{// imshow("{}V"{}, channels[2]);}}
-\DoxyCodeLine{37     \textcolor{comment}{// waitKey(0);}}
-\DoxyCodeLine{38 }
+\DoxyCodeLine{1 }
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#include <fstream>}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{\#include <vector>}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{\#include <bitset>}}
+\DoxyCodeLine{13 }
+\DoxyCodeLine{14 \textcolor{preprocessor}{\#include <opencv2/opencv.hpp>}}
+\DoxyCodeLine{15 \textcolor{preprocessor}{\#include <opencv2/highgui.hpp>}}
+\DoxyCodeLine{16 \textcolor{preprocessor}{\#include <opencv2/core/mat.hpp>}}
+\DoxyCodeLine{17 \textcolor{preprocessor}{\#include <opencv2/imgcodecs.hpp>}}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{19 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{_golomb_8hh}{Golomb.hh}}"{}}}
+\DoxyCodeLine{20 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{_bit_stream_8hh}{BitStream.hh}}"{}}}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22 \textcolor{keyword}{using namespace }std;}
+\DoxyCodeLine{23 \textcolor{keyword}{using namespace }cv;}
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26 \textcolor{keyword}{class }\mbox{\hyperlink{class_lossless_codec}{LosslessCodec}} \{}
+\DoxyCodeLine{27     \textcolor{keyword}{public}:}
+\DoxyCodeLine{28         \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lossless_codec_a2bf22e6d8c39a522fccb11db48215781}{encode}}(\textcolor{keywordtype}{string} path\_to\_img, \textcolor{keywordtype}{string} path\_to\_bin);}
+\DoxyCodeLine{29         \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lossless_codec_a82fbc48a6306fa75a48d496aa60d9eaf}{decode}}(\textcolor{keywordtype}{string} path\_to\_bin, \textcolor{keywordtype}{string} path\_to\_img);}
+\DoxyCodeLine{30     \textcolor{keyword}{private}:}
+\DoxyCodeLine{31         \textcolor{keywordtype}{void} toYUV(Mat img, Mat* yuv\_channels);     }
+\DoxyCodeLine{32         \textcolor{keywordtype}{int} calculate\_m(Mat mat);}
+\DoxyCodeLine{33         \textcolor{keywordtype}{double} calculate\_entropy(Mat mat);}
+\DoxyCodeLine{34         \textcolor{keywordtype}{string} toByte(\textcolor{keywordtype}{string} bits);}
+\DoxyCodeLine{35         \textcolor{keywordtype}{string} removePadding(\textcolor{keywordtype}{string} bits);}
+\DoxyCodeLine{36         Mat predictorEnc(Mat img);}
+\DoxyCodeLine{37         Mat predictorDec(Mat err);}
+\DoxyCodeLine{38 \};}
 \DoxyCodeLine{39 }
-\DoxyCodeLine{40     \textcolor{comment}{// ofstream file;}}
-\DoxyCodeLine{41     \textcolor{comment}{// file.open("{}yuv"{});}}
-\DoxyCodeLine{42     \textcolor{comment}{// file << "{}-\/-\/-\/   Y   -\/-\/-\/\(\backslash\)n"{} << channels[0] << "{}\(\backslash\)n-\/-\/-\/  U  -\/-\/-\/\(\backslash\)n"{} << channels[1] << "{}\(\backslash\)n-\/-\/-\/  V  -\/-\/-\/\(\backslash\)n"{} << channels[2];}}
-\DoxyCodeLine{43 }
-\DoxyCodeLine{44     Mat tmp\_u (img.size().height/2, img.size().width/2, CV\_8UC1);}
-\DoxyCodeLine{45     Mat tmp\_v (img.size().height/2, img.size().width/2, CV\_8UC1);}
-\DoxyCodeLine{46 }
-\DoxyCodeLine{47     \textcolor{keywordtype}{int} u\_i = 0, v\_i = 0;}
-\DoxyCodeLine{48     \textcolor{keywordtype}{int} u\_j = 0, v\_j = 0;}
-\DoxyCodeLine{49     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < img.size().height; i+=2) \{}
-\DoxyCodeLine{50         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < img.size().width; j+=2) \{}
-\DoxyCodeLine{51             tmp\_u.at<uchar>(u\_i, u\_j++) = yuv\_channels[1].at<uchar>(i,j);}
-\DoxyCodeLine{52             tmp\_v.at<uchar>(v\_i, v\_j++) = yuv\_channels[2].at<uchar>(i,j);}
-\DoxyCodeLine{53         \}}
-\DoxyCodeLine{54         u\_i++; v\_i++;}
-\DoxyCodeLine{55         u\_j = v\_j = 0;}
-\DoxyCodeLine{56     \}}
-\DoxyCodeLine{57 }
-\DoxyCodeLine{58     yuv\_channels[1] = tmp\_u;}
-\DoxyCodeLine{59     yuv\_channels[2] = tmp\_v;}
-\DoxyCodeLine{60 }
-\DoxyCodeLine{61 \textcolor{comment}{    /***** MORE DEBUG ******/}}
-\DoxyCodeLine{62     imshow(\textcolor{stringliteral}{"{}Y"{}}, yuv\_channels[0]);}
-\DoxyCodeLine{63     imshow(\textcolor{stringliteral}{"{}U"{}}, yuv\_channels[1]);}
-\DoxyCodeLine{64     imshow(\textcolor{stringliteral}{"{}V"{}}, yuv\_channels[2]);}
-\DoxyCodeLine{65     waitKey(0);}
-\DoxyCodeLine{66 }
-\DoxyCodeLine{67     cout << yuv\_channels[0].size() << endl;}
-\DoxyCodeLine{68     cout << yuv\_channels[1].size() << endl;}
-\DoxyCodeLine{69     cout << yuv\_channels[2].size() << endl;}
-\DoxyCodeLine{70 }
-\DoxyCodeLine{71     \textcolor{comment}{// imshow("{}tmp\_u"{}, tmp\_u);}}
-\DoxyCodeLine{72     \textcolor{comment}{// imshow("{}mat\_v"{}, mat\_v);}}
-\DoxyCodeLine{73     \textcolor{comment}{// waitKey(0);}}
-\DoxyCodeLine{74 }
-\DoxyCodeLine{75     \textcolor{comment}{// Mat mat\_y (img.size().height,img.size().width,CV\_8UC1);}}
-\DoxyCodeLine{76     \textcolor{comment}{// Mat mat\_u (img.size().height,img.size().width,CV\_8UC1);}}
-\DoxyCodeLine{77     \textcolor{comment}{// Mat mat\_v (img.size().height,img.size().width,CV\_8UC1);}}
-\DoxyCodeLine{78     \textcolor{comment}{// float r, g, b;}}
-\DoxyCodeLine{79     \textcolor{comment}{// int y, u, v;}}
-\DoxyCodeLine{80     \textcolor{comment}{// for (int i = 0; i < img.size().height; i++) \{}}
-\DoxyCodeLine{81     \textcolor{comment}{//     for (int j = 0; j < img.size().width; j++) \{}}
-\DoxyCodeLine{82     \textcolor{comment}{//         r = img.at<Vec3b>(i,j)[0] ;}}
-\DoxyCodeLine{83     \textcolor{comment}{//         g = img.at<Vec3b>(i,j)[1] ;}}
-\DoxyCodeLine{84     \textcolor{comment}{//         b = img.at<Vec3b>(i,j)[2] ;}}
-\DoxyCodeLine{85 }
-\DoxyCodeLine{86     \textcolor{comment}{//         // y = 16 + 65.481*r + 128.553*g + 24.966*b;}}
-\DoxyCodeLine{87     \textcolor{comment}{//         // y = 0.299*r + 0.587*g + 0.114*b;}}
-\DoxyCodeLine{88     \textcolor{comment}{//         // u = 128 -\/0.147*r -\/ 0.289*g + 0.436*b;}}
-\DoxyCodeLine{89     \textcolor{comment}{//         // v = 128 + 0.550*r -\/ 0.515*g -\/ 0.1*b;}}
-\DoxyCodeLine{90     \textcolor{comment}{//         y = 0.299*r + 0.587*g + 0.114*b;}}
-\DoxyCodeLine{91     \textcolor{comment}{//         u = 128 -\/ 0.168736*r -\/ 0.331264*g + 0.5*b;}}
-\DoxyCodeLine{92     \textcolor{comment}{//         v = 128 + 0.5*r -\/ 0.418688*g -\/ 0.081312*b;}}
-\DoxyCodeLine{93 }
-\DoxyCodeLine{94     \textcolor{comment}{//         mat\_y.at<uchar>(i,j) = y;}}
-\DoxyCodeLine{95     \textcolor{comment}{//         // if (i\%2 == 0 \&\& j\%2 == 0) \{}}
-\DoxyCodeLine{96     \textcolor{comment}{//             mat\_u.at<uchar>(i,j) = u;}}
-\DoxyCodeLine{97     \textcolor{comment}{//             mat\_v.at<uchar>(i,j) = v;}}
-\DoxyCodeLine{98     \textcolor{comment}{//         // \}}}
-\DoxyCodeLine{99     \textcolor{comment}{//     \}}}
-\DoxyCodeLine{100     \textcolor{comment}{// \}}}
-\DoxyCodeLine{101 }
-\DoxyCodeLine{102     \textcolor{comment}{// Mat channels[3] = \{mat\_y, mat\_u, mat\_v\};}}
-\DoxyCodeLine{103     \textcolor{comment}{// Mat output;}}
-\DoxyCodeLine{104     \textcolor{comment}{// merge(channels, 3, output);}}
-\DoxyCodeLine{105     \textcolor{comment}{// imshow("{}test"{}, output);}}
-\DoxyCodeLine{106     \textcolor{comment}{// waitKey(0);}}
-\DoxyCodeLine{107     \textcolor{comment}{//  cout << (int) img.at<Vec3b>(i,j)[1] << endl;}}
-\DoxyCodeLine{108 }
-\DoxyCodeLine{109 \}}
-\DoxyCodeLine{110 }
-\DoxyCodeLine{111 Mat LosslessCodec::predictor(Mat img) \{}
-\DoxyCodeLine{112 }
-\DoxyCodeLine{113     Mat error (img.size().height, img.size().width, CV\_8UC1);}
-\DoxyCodeLine{114     \textcolor{keywordtype}{int} a = 0, b = 0, c = 0, x;}
-\DoxyCodeLine{115     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < img.size().height; i++) \{}
-\DoxyCodeLine{116         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < img.size().width; j++) \{}
-\DoxyCodeLine{117             \textcolor{comment}{// canto superior esquerdo}}
-\DoxyCodeLine{118             \textcolor{keywordflow}{if} (i == 0 \&\& j == 0) \{}
-\DoxyCodeLine{119                 a = 0;}
-\DoxyCodeLine{120                 b = 0;}
-\DoxyCodeLine{121                 c = 0;}
-\DoxyCodeLine{122             \} }
-\DoxyCodeLine{123             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (i == 0 \&\& j != 0) \{ \textcolor{comment}{// linha cima}}
-\DoxyCodeLine{124                 a = (int) img.at<uchar>(i,j-\/1);}
-\DoxyCodeLine{125                 b = 0;}
-\DoxyCodeLine{126                 c = 0;}
-\DoxyCodeLine{127             \}}
-\DoxyCodeLine{128             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (i != 0 \&\& j == 0) \{ \textcolor{comment}{// coluna esquerda}}
+\DoxyCodeLine{40 \textcolor{keywordtype}{void} LosslessCodec::toYUV(Mat img, Mat* yuv\_channels) \{}
+\DoxyCodeLine{41 }
+\DoxyCodeLine{42     \textcolor{comment}{// convert to YUV colorspace}}
+\DoxyCodeLine{43     cvtColor(img, img, COLOR\_RGB2YUV);}
+\DoxyCodeLine{44     }
+\DoxyCodeLine{45     \textcolor{comment}{// split YUV channels into 3 arrays}}
+\DoxyCodeLine{46     split(img, yuv\_channels);}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{48     }
+\DoxyCodeLine{49     Mat tmp\_u (img.size().height/2, img.size().width/2, CV\_8UC1);}
+\DoxyCodeLine{50     Mat tmp\_v (img.size().height/2, img.size().width/2, CV\_8UC1);}
+\DoxyCodeLine{51 }
+\DoxyCodeLine{52     \textcolor{keywordtype}{int} u\_i = 0, v\_i = 0;}
+\DoxyCodeLine{53     \textcolor{keywordtype}{int} u\_j = 0, v\_j = 0;}
+\DoxyCodeLine{54 }
+\DoxyCodeLine{55     \textcolor{comment}{// Convert to YUV4:2:0}}
+\DoxyCodeLine{56     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < img.size().height; i+=2) \{}
+\DoxyCodeLine{57         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < img.size().width; j+=2) \{}
+\DoxyCodeLine{58             tmp\_u.at<uchar>(u\_i, u\_j++) = yuv\_channels[1].at<uchar>(i,j);}
+\DoxyCodeLine{59             tmp\_v.at<uchar>(v\_i, v\_j++) = yuv\_channels[2].at<uchar>(i,j);}
+\DoxyCodeLine{60         \}}
+\DoxyCodeLine{61         u\_i++; v\_i++;}
+\DoxyCodeLine{62         u\_j = v\_j = 0;}
+\DoxyCodeLine{63     \}}
+\DoxyCodeLine{64 }
+\DoxyCodeLine{65     yuv\_channels[1] = tmp\_u;}
+\DoxyCodeLine{66     yuv\_channels[2] = tmp\_v;}
+\DoxyCodeLine{67 \}}
+\DoxyCodeLine{68 }
+\DoxyCodeLine{69 Mat LosslessCodec::predictorEnc(Mat img) \{}
+\DoxyCodeLine{75     Mat error (img.size().height, img.size().width, CV\_8UC1);}
+\DoxyCodeLine{76     \textcolor{keywordtype}{int} a, b, c, x;}
+\DoxyCodeLine{77     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < img.size().height; i++) \{}
+\DoxyCodeLine{78         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < img.size().width; j++) \{}
+\DoxyCodeLine{79             \textcolor{comment}{// canto superior esquerdo}}
+\DoxyCodeLine{80             \textcolor{keywordflow}{if} (i == 0 \&\& j == 0) \{}
+\DoxyCodeLine{81                 a = 0;}
+\DoxyCodeLine{82                 b = 0;}
+\DoxyCodeLine{83                 c = 0;}
+\DoxyCodeLine{84             \} }
+\DoxyCodeLine{85             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (i == 0 \&\& j != 0) \{ \textcolor{comment}{// linha cima}}
+\DoxyCodeLine{86                 a = (int) img.at<uchar>(i,j-\/1);}
+\DoxyCodeLine{87                 b = 0;}
+\DoxyCodeLine{88                 c = 0;}
+\DoxyCodeLine{89             \}}
+\DoxyCodeLine{90             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (i != 0 \&\& j == 0) \{ \textcolor{comment}{// coluna esquerda}}
+\DoxyCodeLine{91                 a = 0;}
+\DoxyCodeLine{92                 b = (int) img.at<uchar>(i-\/1,j);}
+\DoxyCodeLine{93                 c = 0;}
+\DoxyCodeLine{94             \}}
+\DoxyCodeLine{95             \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{96                 a = (int) img.at<uchar>(i,j-\/1);}
+\DoxyCodeLine{97                 b = (int) img.at<uchar>(i-\/1,j);}
+\DoxyCodeLine{98                 c = (int) img.at<uchar>(i-\/1,j-\/1);}
+\DoxyCodeLine{99             \}}
+\DoxyCodeLine{100 }
+\DoxyCodeLine{101             \textcolor{comment}{// Prediction}}
+\DoxyCodeLine{102             \textcolor{keywordflow}{if} (c >= max(a,b)) \{}
+\DoxyCodeLine{103                 x = min(a,b);}
+\DoxyCodeLine{104             \}}
+\DoxyCodeLine{105             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (c <= min(a,b)) \{}
+\DoxyCodeLine{106                 x = max(a,b);}
+\DoxyCodeLine{107             \}}
+\DoxyCodeLine{108             \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{109                 x = a + b -\/ c;}
+\DoxyCodeLine{110             \}}
+\DoxyCodeLine{111             error.at<uchar>(i,j) = (uchar) ( ((int) img.at<uchar>(i,j)) -\/ x);}
+\DoxyCodeLine{112             \textcolor{comment}{// cout << (int) error.at<uchar>(i,j) << endl;}}
+\DoxyCodeLine{113         \}}
+\DoxyCodeLine{114     \}}
+\DoxyCodeLine{115     \textcolor{keywordflow}{return} error;}
+\DoxyCodeLine{116 \}}
+\DoxyCodeLine{117 }
+\DoxyCodeLine{118 Mat LosslessCodec::predictorDec(Mat err) \{}
+\DoxyCodeLine{123     Mat img (err.size().height, err.size().width, CV\_8UC1);}
+\DoxyCodeLine{124     \textcolor{keywordtype}{int} a, b, c, x;}
+\DoxyCodeLine{125     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < img.size().height; i++) \{}
+\DoxyCodeLine{126         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < img.size().width; j++) \{}
+\DoxyCodeLine{127             \textcolor{comment}{// canto superior esquerdo}}
+\DoxyCodeLine{128             \textcolor{keywordflow}{if} (i == 0 \&\& j == 0) \{}
 \DoxyCodeLine{129                 a = 0;}
-\DoxyCodeLine{130                 b = (int) img.at<uchar>(i-\/1,j);}
+\DoxyCodeLine{130                 b = 0;}
 \DoxyCodeLine{131                 c = 0;}
-\DoxyCodeLine{132             \}}
-\DoxyCodeLine{133             \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{132             \} }
+\DoxyCodeLine{133             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (i == 0 \&\& j != 0) \{ \textcolor{comment}{// linha cima}}
 \DoxyCodeLine{134                 a = (int) img.at<uchar>(i,j-\/1);}
-\DoxyCodeLine{135                 b = (int) img.at<uchar>(i-\/1,j);}
-\DoxyCodeLine{136                 c = (int) img.at<uchar>(i-\/1,j-\/1);}
+\DoxyCodeLine{135                 b = 0;}
+\DoxyCodeLine{136                 c = 0;}
 \DoxyCodeLine{137             \}}
-\DoxyCodeLine{138             \textcolor{keywordflow}{if} (c >= max(a,b)) \{}
-\DoxyCodeLine{139                 x = min(a,b);}
-\DoxyCodeLine{140             \}}
-\DoxyCodeLine{141             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (c <= min(a,b)) \{}
-\DoxyCodeLine{142                 x = max(a,b);}
-\DoxyCodeLine{143             \}}
-\DoxyCodeLine{144             \textcolor{keywordflow}{else} \{}
-\DoxyCodeLine{145                 x = a + b -\/ c;}
-\DoxyCodeLine{146             \}}
-\DoxyCodeLine{147             error.at<uchar>(i,j) = img.at<uchar>(i,j) -\/ (uchar) x;}
-\DoxyCodeLine{148             \textcolor{comment}{// cout << (int) error.at<uchar>(i,j) << endl;}}
-\DoxyCodeLine{149         \}}
-\DoxyCodeLine{150     \}}
-\DoxyCodeLine{151     \textcolor{keywordflow}{return} error;}
-\DoxyCodeLine{152 \}}
-\DoxyCodeLine{153 }
-\DoxyCodeLine{154 }
-\DoxyCodeLine{155 \textcolor{keywordtype}{void} LosslessCodec::encode(\textcolor{keywordtype}{string} path) \{}
-\DoxyCodeLine{156     Mat img = imread(path);}
-\DoxyCodeLine{157     \textcolor{keywordflow}{if} (img.empty()) \{}
-\DoxyCodeLine{158         cout << \textcolor{stringliteral}{"{}Error with image"{}} << endl;}
-\DoxyCodeLine{159     \}}
-\DoxyCodeLine{160 }
-\DoxyCodeLine{161     Mat channels[3];}
-\DoxyCodeLine{162     toYUV(img, channels);}
-\DoxyCodeLine{163 }
-\DoxyCodeLine{164     cout << channels << endl;}
-\DoxyCodeLine{165 }
-\DoxyCodeLine{166     Mat error[3];}
-\DoxyCodeLine{167     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < 3; i++) \{ \textcolor{comment}{// yuv 3 channels}}
-\DoxyCodeLine{168         error[i] = predictor(channels[i]);}
-\DoxyCodeLine{169     \}}
-\DoxyCodeLine{170 }
-\DoxyCodeLine{171 }
-\DoxyCodeLine{172  \}}
+\DoxyCodeLine{138             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (i != 0 \&\& j == 0) \{ \textcolor{comment}{// coluna esquerda}}
+\DoxyCodeLine{139                 a = 0;}
+\DoxyCodeLine{140                 b = (int) img.at<uchar>(i-\/1,j);}
+\DoxyCodeLine{141                 c = 0;}
+\DoxyCodeLine{142             \}}
+\DoxyCodeLine{143             \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{144                 a = (int) img.at<uchar>(i,j-\/1);}
+\DoxyCodeLine{145                 b = (int) img.at<uchar>(i-\/1,j);}
+\DoxyCodeLine{146                 c = (int) img.at<uchar>(i-\/1,j-\/1);}
+\DoxyCodeLine{147             \}}
+\DoxyCodeLine{148 }
+\DoxyCodeLine{149             \textcolor{comment}{// Prediction}}
+\DoxyCodeLine{150             \textcolor{keywordflow}{if} (c >= max(a,b)) \{}
+\DoxyCodeLine{151                 x = min(a,b);}
+\DoxyCodeLine{152             \}}
+\DoxyCodeLine{153             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (c <= min(a,b)) \{}
+\DoxyCodeLine{154                 x = max(a,b);}
+\DoxyCodeLine{155             \}}
+\DoxyCodeLine{156             \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{157                 x = a + b -\/ c;}
+\DoxyCodeLine{158             \}}
+\DoxyCodeLine{159             img.at<uchar>(i,j) = (uchar) ( ((int) err.at<uchar>(i,j)) + x);}
+\DoxyCodeLine{160         \}}
+\DoxyCodeLine{161     \}}
+\DoxyCodeLine{162     \textcolor{keywordflow}{return} img;}
+\DoxyCodeLine{163 \}}
+\DoxyCodeLine{164 }
+\DoxyCodeLine{165 \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lossless_codec_a2bf22e6d8c39a522fccb11db48215781}{LosslessCodec::encode}}(\textcolor{keywordtype}{string} path\_to\_img, \textcolor{keywordtype}{string} path\_to\_bin) \{}
+\DoxyCodeLine{174     Mat img = imread(path\_to\_img);}
+\DoxyCodeLine{175     \textcolor{keywordflow}{if} (img.empty()) \{}
+\DoxyCodeLine{176         cout << \textcolor{stringliteral}{"{}Error with image"{}} << endl;}
+\DoxyCodeLine{177     \}}
+\DoxyCodeLine{178 }
+\DoxyCodeLine{179     Mat channels[3];}
+\DoxyCodeLine{180     toYUV(img, channels);}
+\DoxyCodeLine{181 }
+\DoxyCodeLine{182     \textcolor{comment}{//one for each channel (3 channels) // Y = [0] / U = [1] / V = [2]}}
+\DoxyCodeLine{183     Mat error[3];}
+\DoxyCodeLine{184     \textcolor{keywordtype}{double} entropy = 0;}
+\DoxyCodeLine{185     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < 3; i++) \{   \textcolor{comment}{//fill error matrices and calc entropy }}
+\DoxyCodeLine{186         error[i] = predictorEnc(channels[i]);}
+\DoxyCodeLine{187         entropy += calculate\_entropy(channels[i]);}
+\DoxyCodeLine{188     \}}
+\DoxyCodeLine{189     entropy = entropy / 3; \textcolor{comment}{//3 channels}}
+\DoxyCodeLine{190     cout << \textcolor{stringliteral}{"{}Avg. Entropy: "{}} << entropy << endl << endl;}
+\DoxyCodeLine{191 }
+\DoxyCodeLine{192 }
+\DoxyCodeLine{193     \mbox{\hyperlink{class_bit_stream}{BitStream}} bs = \mbox{\hyperlink{class_bit_stream}{BitStream}}(\textcolor{stringliteral}{"{}"{}}, path\_to\_bin);}
+\DoxyCodeLine{194     \mbox{\hyperlink{class_golomb}{Golomb}} g;}
+\DoxyCodeLine{195     \textcolor{keywordtype}{int} m[3], nbytes[3] = \{0\};}
+\DoxyCodeLine{196     \textcolor{keywordtype}{int} val;}
+\DoxyCodeLine{197     \textcolor{keywordtype}{string} bits, golomb;}
+\DoxyCodeLine{198     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} k = 0; k < 3; k++) \{}
+\DoxyCodeLine{199         m[k] = calculate\_m(error[k]);}
+\DoxyCodeLine{200 }
+\DoxyCodeLine{201         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < error[k].size().height; i++) \{}
+\DoxyCodeLine{202             \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < error[k].size().width; j++)\{   }
+\DoxyCodeLine{203                 val = error[k].at<uchar>(i,j);}
+\DoxyCodeLine{204                 golomb = g.\mbox{\hyperlink{class_golomb_a8e035d229c028fbabc57ffe94211fad6}{EncodeNumbers}}(val, m[k]);}
+\DoxyCodeLine{205                 bits = toByte(golomb);}
+\DoxyCodeLine{206                 bs.\mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{writeBits}}(bits);}
+\DoxyCodeLine{207 }
+\DoxyCodeLine{208                 nbytes[k] += bits.length() / 8; }
+\DoxyCodeLine{209             \}}
+\DoxyCodeLine{210         \}}
+\DoxyCodeLine{211     \}}
+\DoxyCodeLine{212 }
+\DoxyCodeLine{213     \textcolor{comment}{// BOTTOMER }}
+\DoxyCodeLine{214     bs.\mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{writeBits}}(bitset<8>(m[0]).to\_string());}
+\DoxyCodeLine{215     bs.\mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{writeBits}}(bitset<8>(m[1]).to\_string());}
+\DoxyCodeLine{216     bs.\mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{writeBits}}(bitset<8>(m[2]).to\_string());}
+\DoxyCodeLine{217     bs.\mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{writeBits}}(bitset<16>(img.size().height).to\_string());}
+\DoxyCodeLine{218     bs.\mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{writeBits}}(bitset<16>(img.size().width).to\_string());}
+\DoxyCodeLine{219     bs.\mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{writeBits}}(bitset<24>(nbytes[0]).to\_string());}
+\DoxyCodeLine{220     bs.\mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{writeBits}}(bitset<24>(nbytes[1]).to\_string());}
+\DoxyCodeLine{221     bs.\mbox{\hyperlink{class_bit_stream_a5ffddb35eef66aea10e0241d601be56c}{writeBits}}(bitset<24>(nbytes[2]).to\_string());}
+\DoxyCodeLine{222 }
+\DoxyCodeLine{223 \}}
+\DoxyCodeLine{224 }
+\DoxyCodeLine{225 \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lossless_codec_a82fbc48a6306fa75a48d496aa60d9eaf}{LosslessCodec::decode}}(\textcolor{keywordtype}{string} path\_to\_bin, \textcolor{keywordtype}{string} path\_to\_img) \{}
+\DoxyCodeLine{239     \textcolor{keywordtype}{int} m[3], nbytes[3];}
+\DoxyCodeLine{240     \textcolor{keywordtype}{int} height, width;}
+\DoxyCodeLine{241     \textcolor{keywordtype}{int} i = 0, j = 0;}
+\DoxyCodeLine{242 }
+\DoxyCodeLine{243     \mbox{\hyperlink{class_bit_stream}{BitStream}} bs = \mbox{\hyperlink{class_bit_stream}{BitStream}}(path\_to\_bin, \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{244     \mbox{\hyperlink{class_golomb}{Golomb}} g;}
+\DoxyCodeLine{245 }
+\DoxyCodeLine{246     vector<int> img\_info = bs.\mbox{\hyperlink{class_bit_stream_a51741df884698cb9221e2548ca2012d2}{getBuffer}}();}
+\DoxyCodeLine{247 }
+\DoxyCodeLine{248     u\_int aux = 0;}
+\DoxyCodeLine{249     vector<int>::iterator it = img\_info.end() -\/ 16*8;}
+\DoxyCodeLine{250 }
+\DoxyCodeLine{251 }
+\DoxyCodeLine{252     cout << \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/Bitstream Header-\/-\/-\/-\/-\/\(\backslash\)n"{}} << endl;}
+\DoxyCodeLine{253 }
+\DoxyCodeLine{254     \textcolor{comment}{// Get each channel m value }}
+\DoxyCodeLine{255     \textcolor{keywordflow}{for} (i = 0; i < 3; i++) \{}
+\DoxyCodeLine{256         \textcolor{keywordflow}{for} (j = 0; j < 8; ++it, j++) \{}
+\DoxyCodeLine{257             aux = (aux << 1) | *it;}
+\DoxyCodeLine{258         \}}
+\DoxyCodeLine{259         m[i] = aux;}
+\DoxyCodeLine{260         aux = 0;}
+\DoxyCodeLine{261     \}}
+\DoxyCodeLine{262     cout << \textcolor{stringliteral}{"{}Y m: "{}} << m[0] << endl;}
+\DoxyCodeLine{263     cout << \textcolor{stringliteral}{"{}U m: "{}} << m[1] << endl;}
+\DoxyCodeLine{264     cout << \textcolor{stringliteral}{"{}V m: "{}} << m[2] << endl;}
+\DoxyCodeLine{265 }
+\DoxyCodeLine{266     \textcolor{comment}{// Get img height and width}}
+\DoxyCodeLine{267     \textcolor{keywordflow}{for} (j = 0; j < 16; ++it, j++) \{}
+\DoxyCodeLine{268         aux = (aux << 1) | *it;}
+\DoxyCodeLine{269     \}}
+\DoxyCodeLine{270     height = aux;}
+\DoxyCodeLine{271     cout << \textcolor{stringliteral}{"{}Height: "{}} << height << endl;}
+\DoxyCodeLine{272 }
+\DoxyCodeLine{273     aux = 0;}
+\DoxyCodeLine{274     \textcolor{keywordflow}{for} (j = 0; j < 16; ++it, j++) \{}
+\DoxyCodeLine{275         aux = (aux << 1) | *it;}
+\DoxyCodeLine{276     \}}
+\DoxyCodeLine{277     width = aux;}
+\DoxyCodeLine{278     cout << \textcolor{stringliteral}{"{}Width: "{}} << width << endl;}
+\DoxyCodeLine{279 }
+\DoxyCodeLine{280     aux = 0;}
+\DoxyCodeLine{281     \textcolor{comment}{// Get number of bytes per channel}}
+\DoxyCodeLine{282     \textcolor{keywordflow}{for} (i = 0; i < 3; i++) \{}
+\DoxyCodeLine{283         \textcolor{keywordflow}{for} (j = 0; j < 24; ++it, j++) \{}
+\DoxyCodeLine{284             aux = (aux << 1) | *it;}
+\DoxyCodeLine{285         \}}
+\DoxyCodeLine{286         nbytes[i] = aux;}
+\DoxyCodeLine{287         aux = 0;}
+\DoxyCodeLine{288     \}}
+\DoxyCodeLine{289     cout << \textcolor{stringliteral}{"{}Y bytes: "{}} << nbytes[i] << endl;}
+\DoxyCodeLine{290     cout << \textcolor{stringliteral}{"{}U bytes: "{}} << nbytes[i] << endl;}
+\DoxyCodeLine{291     cout << \textcolor{stringliteral}{"{}V bytes: "{}} << nbytes[i] << endl;}
+\DoxyCodeLine{292 }
+\DoxyCodeLine{293 }
+\DoxyCodeLine{294 }
+\DoxyCodeLine{295     \textcolor{comment}{// create error matrices}}
+\DoxyCodeLine{296     Mat errorY(height, width, CV\_8UC1);}
+\DoxyCodeLine{297     Mat errorU(height/2, width/2, CV\_8UC1);}
+\DoxyCodeLine{298     Mat errorV(height/2, width/2, CV\_8UC1);}
+\DoxyCodeLine{299 }
+\DoxyCodeLine{300 }
+\DoxyCodeLine{301     vector<int> vals[3];                            \textcolor{comment}{//store values for 3 channels}}
+\DoxyCodeLine{302 }
+\DoxyCodeLine{303 }
+\DoxyCodeLine{304     \textcolor{keywordtype}{bool} unary\_flag = 1;                            }
+\DoxyCodeLine{305     \textcolor{keywordtype}{string} bits = \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{306     \textcolor{keywordtype}{int} tmp;}
+\DoxyCodeLine{307     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < 3; i++) \{}
+\DoxyCodeLine{308         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} j = 0; j < nbytes[i] ; j++) \{}
+\DoxyCodeLine{309             bits = bits + bs.\mbox{\hyperlink{class_bit_stream_af5135c8e770ed39dbc2a14426655eddd}{readBits}}(8);}
+\DoxyCodeLine{310             \textcolor{keywordflow}{if} (unary\_flag) \{                       \textcolor{comment}{// we're reading the unary part}}
+\DoxyCodeLine{311                 \textcolor{comment}{// while(bits.back() != '1') \{}}
+\DoxyCodeLine{312                 \textcolor{comment}{//     bits = bits + bs.readBits(8);}}
+\DoxyCodeLine{313                 \textcolor{comment}{// \}}}
+\DoxyCodeLine{314                 \textcolor{keywordflow}{if} (bits.back() == \textcolor{charliteral}{'0'}) \{           \textcolor{comment}{// read the rest of the unary}}
+\DoxyCodeLine{315                     \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{316                 \}}
+\DoxyCodeLine{317                 unary\_flag = 0;                     \textcolor{comment}{// the next byte is the binary part}}
+\DoxyCodeLine{318             \} \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{319                 tmp = g.\mbox{\hyperlink{class_golomb_a8e37819cfe368b42e0fcd4be22763f42}{DecodeNumbers}}(removePadding(bits), m[i]);}
+\DoxyCodeLine{320 }
+\DoxyCodeLine{321                 \textcolor{comment}{// cout << "{}bits: "{} << bits << endl;}}
+\DoxyCodeLine{322                 \textcolor{comment}{// cout << "{}no pad: "{} << removePadding(bits) << endl;}}
+\DoxyCodeLine{323                 \textcolor{comment}{// cout << "{}golomb: "{} << g.DecodeNumbers(removePadding(bits), m[i]) << endl;}}
+\DoxyCodeLine{324 }
+\DoxyCodeLine{325                 vals[i].push\_back(tmp);}
+\DoxyCodeLine{326                 bits = \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{327                 unary\_flag = 1;}
+\DoxyCodeLine{328             \}}
+\DoxyCodeLine{329         \}}
+\DoxyCodeLine{330         unary\_flag = 1;}
+\DoxyCodeLine{331         bits = \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{332     \}}
+\DoxyCodeLine{333 }
+\DoxyCodeLine{334     \textcolor{comment}{//Put the values in the specific channel}}
+\DoxyCodeLine{335     it = vals[0].begin();}
+\DoxyCodeLine{336     \textcolor{keywordflow}{for} (i = 0; i < height; i++) \{}
+\DoxyCodeLine{337         \textcolor{keywordflow}{for} (j = 0; j < width; j++) \{}
+\DoxyCodeLine{338             errorY.at<uchar>(i,j) = *(it++);}
+\DoxyCodeLine{339         \}}
+\DoxyCodeLine{340     \}}
+\DoxyCodeLine{341 }
+\DoxyCodeLine{342     it = vals[1].begin();}
+\DoxyCodeLine{343     \textcolor{keywordflow}{for} (i = 0; i < height/2; i++) \{}
+\DoxyCodeLine{344         \textcolor{keywordflow}{for} (j = 0; j < width/2; j++) \{}
+\DoxyCodeLine{345             errorU.at<uchar>(i,j) = *(it++);}
+\DoxyCodeLine{346         \}}
+\DoxyCodeLine{347     \}}
+\DoxyCodeLine{348 }
+\DoxyCodeLine{349     it = vals[2].begin();}
+\DoxyCodeLine{350     \textcolor{keywordflow}{for} (i = 0; i < height/2; i++) \{}
+\DoxyCodeLine{351         \textcolor{keywordflow}{for} (j = 0; j < width/2; j++) \{}
+\DoxyCodeLine{352             errorV.at<uchar>(i,j) = *(it++);}
+\DoxyCodeLine{353         \}}
+\DoxyCodeLine{354     \}}
+\DoxyCodeLine{355 }
+\DoxyCodeLine{356     Mat img[3];}
+\DoxyCodeLine{357     img[0] = predictorDec(errorY);}
+\DoxyCodeLine{358     img[1] = predictorDec(errorU);}
+\DoxyCodeLine{359     img[2] = predictorDec(errorV);}
+\DoxyCodeLine{360 }
+\DoxyCodeLine{361     }
+\DoxyCodeLine{362     Mat tmp\_u (height, width, CV\_8UC1);}
+\DoxyCodeLine{363     Mat tmp\_v (height, width, CV\_8UC1);}
+\DoxyCodeLine{364 }
+\DoxyCodeLine{365     \textcolor{keywordtype}{int} u\_i = 0, v\_i = 0;}
+\DoxyCodeLine{366     \textcolor{keywordtype}{int} u\_j = 0, v\_j = 0;}
+\DoxyCodeLine{367     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < height; i+=2) \{                                     \textcolor{comment}{// Expand YUV4:2:0 to YUV4:4:4}}
+\DoxyCodeLine{368         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < width; j+=2) \{}
+\DoxyCodeLine{369             tmp\_u.at<uchar>(i,j) = img[1].at<uchar>(u\_i,u\_j+1);}
+\DoxyCodeLine{370             tmp\_u.at<uchar>(i+1,j) = img[1].at<uchar>(u\_i,u\_j+1);}
+\DoxyCodeLine{371             tmp\_u.at<uchar>(i,j+1) = img[1].at<uchar>(u\_i,u\_j+1);}
+\DoxyCodeLine{372             tmp\_u.at<uchar>(i+1,j+1) = img[1].at<uchar>(u\_i,u\_j+1);}
+\DoxyCodeLine{373 }
+\DoxyCodeLine{374             tmp\_v.at<uchar>(i,j) = img[2].at<uchar>(v\_i,v\_j+1);}
+\DoxyCodeLine{375             tmp\_v.at<uchar>(i+1,j) = img[2].at<uchar>(v\_i,v\_j+1);}
+\DoxyCodeLine{376             tmp\_v.at<uchar>(i,j+1) = img[2].at<uchar>(v\_i,v\_j+1);}
+\DoxyCodeLine{377             tmp\_v.at<uchar>(i+1,j+1) = img[2].at<uchar>(v\_i,v\_j+1);}
+\DoxyCodeLine{378             u\_j++;v\_j++;}
+\DoxyCodeLine{379         \}}
+\DoxyCodeLine{380         u\_i++; v\_i++;}
+\DoxyCodeLine{381         u\_j = v\_j = 0;}
+\DoxyCodeLine{382     \}}
+\DoxyCodeLine{383 }
+\DoxyCodeLine{384     img[1] = tmp\_u;}
+\DoxyCodeLine{385     img[2] = tmp\_v;}
+\DoxyCodeLine{386 }
+\DoxyCodeLine{387     Mat yuv, rgb;}
+\DoxyCodeLine{388     merge(img, 3, yuv);}
+\DoxyCodeLine{389     cvtColor(yuv,rgb,COLOR\_YUV2RGB);}
+\DoxyCodeLine{390 }
+\DoxyCodeLine{391     imwrite(path\_to\_img, rgb);}
+\DoxyCodeLine{392 \}}
+\DoxyCodeLine{393 }
+\DoxyCodeLine{394 \textcolor{keywordtype}{int} LosslessCodec::calculate\_m(Mat mat) \{}
+\DoxyCodeLine{400     \textcolor{keywordtype}{double} mean;}
+\DoxyCodeLine{401     \textcolor{keywordtype}{int} sum = 0;}
+\DoxyCodeLine{402 }
+\DoxyCodeLine{403     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < mat.size().height; i++ ) \{}
+\DoxyCodeLine{404         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < mat.size().width; j++) \{}
+\DoxyCodeLine{405             sum += (int) mat.at<uchar>(i,j);}
+\DoxyCodeLine{406         \}}
+\DoxyCodeLine{407     \}}
+\DoxyCodeLine{408     mean = sum / (mat.size().height * mat.size().width);}
+\DoxyCodeLine{409 }
+\DoxyCodeLine{410     \textcolor{keywordflow}{return} ceil(-\/1/log2(mean/(mean+1)));}
+\DoxyCodeLine{411 \}}
+\DoxyCodeLine{412 }
+\DoxyCodeLine{413 \textcolor{keywordtype}{double} LosslessCodec::calculate\_entropy(Mat mat) \{}
+\DoxyCodeLine{414     }
+\DoxyCodeLine{415     \textcolor{keywordtype}{int} bins[256] = \{0\};}
+\DoxyCodeLine{416     \textcolor{keywordtype}{int} val;}
+\DoxyCodeLine{417     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < mat.size().height; i++) \{}
+\DoxyCodeLine{418         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} j = 0; j < mat.size().width; j++) \{}
+\DoxyCodeLine{419             val = (int) mat.at<uchar>(i,j);           }
+\DoxyCodeLine{420             bins[val]++;}
+\DoxyCodeLine{421         \}}
+\DoxyCodeLine{422     \}}
+\DoxyCodeLine{423 }
+\DoxyCodeLine{424     \textcolor{keywordtype}{double} size = mat.size().width * mat.size().height;}
+\DoxyCodeLine{425     \textcolor{keywordtype}{double} entropy = 0;}
+\DoxyCodeLine{426     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < 256; i++) \{}
+\DoxyCodeLine{427         \textcolor{keywordflow}{if} (bins[i] > 0) \{}
+\DoxyCodeLine{428             entropy += (bins[i]/size) * (log(bins[i]/size));}
+\DoxyCodeLine{429         \}}
+\DoxyCodeLine{430     \}}
+\DoxyCodeLine{431 }
+\DoxyCodeLine{432     \textcolor{keywordflow}{return} entropy*(-\/1);}
+\DoxyCodeLine{433 \}}
+\DoxyCodeLine{434 }
+\DoxyCodeLine{435 \textcolor{keywordtype}{string} LosslessCodec::toByte(\textcolor{keywordtype}{string} bits) \{}
+\DoxyCodeLine{436 }
+\DoxyCodeLine{437     \textcolor{keywordtype}{int} sep = (int) bits.find(\textcolor{stringliteral}{"{}1"{}});}
+\DoxyCodeLine{438     \textcolor{keywordtype}{string} q = bits.substr(0, sep+1);}
+\DoxyCodeLine{439     \textcolor{keywordtype}{string} r = bits.substr(sep+1);}
+\DoxyCodeLine{440 }
+\DoxyCodeLine{441     \textcolor{keywordflow}{while}(q.length() \% 8 != 0) \{}
+\DoxyCodeLine{442         q = \textcolor{stringliteral}{"{}1"{}} + q;}
+\DoxyCodeLine{443     \}}
+\DoxyCodeLine{444 }
+\DoxyCodeLine{445     \textcolor{keywordflow}{while} (r.length() \% 8 != 0) \{}
+\DoxyCodeLine{446         r = \textcolor{stringliteral}{"{}0"{}} + r; }
+\DoxyCodeLine{447     \}}
+\DoxyCodeLine{448 }
+\DoxyCodeLine{449     \textcolor{keywordflow}{return} q + r;}
+\DoxyCodeLine{450 \}}
+\DoxyCodeLine{451 }
+\DoxyCodeLine{452 \textcolor{keywordtype}{string} LosslessCodec::removePadding(\textcolor{keywordtype}{string} bits) \{}
+\DoxyCodeLine{453 }
+\DoxyCodeLine{454     \textcolor{keywordtype}{string} q = bits.substr(0, bits.length()-\/8);}
+\DoxyCodeLine{455     \textcolor{keywordtype}{string} r = bits.substr(bits.length()-\/8);}
+\DoxyCodeLine{456     \textcolor{keywordtype}{int} n;}
+\DoxyCodeLine{457 }
+\DoxyCodeLine{458     n = q.find(\textcolor{stringliteral}{"{}0"{}});}
+\DoxyCodeLine{459 }
+\DoxyCodeLine{460     \textcolor{keywordflow}{if} (n ==  string::npos) \{}
+\DoxyCodeLine{461         q = \textcolor{stringliteral}{"{}1"{}};}
+\DoxyCodeLine{462     \} \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{463         q = q.substr(n);}
+\DoxyCodeLine{464     \}}
+\DoxyCodeLine{465     \textcolor{keywordflow}{return} q + r;}
+\DoxyCodeLine{466 \}}
 
 \end{DoxyCode}
