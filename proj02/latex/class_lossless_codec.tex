@@ -7,10 +7,39 @@ void \mbox{\hyperlink{class_lossless_codec_a2bf22e6d8c39a522fccb11db48215781}{en
 \item 
 void \mbox{\hyperlink{class_lossless_codec_a82fbc48a6306fa75a48d496aa60d9eaf}{decode}} (string path\+\_\+to\+\_\+bin, string path\+\_\+to\+\_\+img)
 \end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_lossless_codec_acc7d1c15a723b1a4c8dfaa7d44d4c133}{to\+Y\+UV}} (Mat img, Mat $\ast$yuv\+\_\+channels)
+\item 
+int \mbox{\hyperlink{class_lossless_codec_a2371db46111cf0461e043670d956eeb8}{calculate\+\_\+m}} (Mat mat)
+\item 
+double \mbox{\hyperlink{class_lossless_codec_a1d27ef1ee41c9a026fe986902e3e7de3}{calculate\+\_\+entropy}} (Mat mat)
+\item 
+string \mbox{\hyperlink{class_lossless_codec_afcd64351cedd5931a4ddd897ff5017ff}{to\+Byte}} (string bits)
+\item 
+string \mbox{\hyperlink{class_lossless_codec_a4743bf0079aa91213f014838876c7004}{remove\+Padding}} (string bits)
+\item 
+Mat \mbox{\hyperlink{class_lossless_codec_a8e8e0b533ac47072fedfcea0cff25e2d}{predictor\+Enc}} (Mat img)
+\item 
+Mat \mbox{\hyperlink{class_lossless_codec_a2719985755483b2c223a8371fb2d2bf1}{predictor\+Dec}} (Mat err)
+\end{DoxyCompactItemize}
 
 
 \doxysubsection{Member Function Documentation}
-\mbox{\Hypertarget{class_lossless_codec_a82fbc48a6306fa75a48d496aa60d9eaf}\label{class_lossless_codec_a82fbc48a6306fa75a48d496aa60d9eaf}} 
+\mbox{\Hypertarget{class_lossless_codec_a1d27ef1ee41c9a026fe986902e3e7de3}\label{class_lossless_codec_a1d27ef1ee41c9a026fe986902e3e7de3}} 
+\index{LosslessCodec@{LosslessCodec}!calculate\_entropy@{calculate\_entropy}}
+\index{calculate\_entropy@{calculate\_entropy}!LosslessCodec@{LosslessCodec}}
+\doxysubsubsection{\texorpdfstring{calculate\_entropy()}{calculate\_entropy()}}
+{\footnotesize\ttfamily double Lossless\+Codec\+::calculate\+\_\+entropy (\begin{DoxyParamCaption}\item[{Mat}]{mat }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Calculates the entropy of a given image\mbox{\Hypertarget{class_lossless_codec_a2371db46111cf0461e043670d956eeb8}\label{class_lossless_codec_a2371db46111cf0461e043670d956eeb8}} 
+\index{LosslessCodec@{LosslessCodec}!calculate\_m@{calculate\_m}}
+\index{calculate\_m@{calculate\_m}!LosslessCodec@{LosslessCodec}}
+\doxysubsubsection{\texorpdfstring{calculate\_m()}{calculate\_m()}}
+{\footnotesize\ttfamily int Lossless\+Codec\+::calculate\+\_\+m (\begin{DoxyParamCaption}\item[{Mat}]{mat }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Used for calculating the optimal m for each channel\mbox{\Hypertarget{class_lossless_codec_a82fbc48a6306fa75a48d496aa60d9eaf}\label{class_lossless_codec_a82fbc48a6306fa75a48d496aa60d9eaf}} 
 \index{LosslessCodec@{LosslessCodec}!decode@{decode}}
 \index{decode@{decode}!LosslessCodec@{LosslessCodec}}
 \doxysubsubsection{\texorpdfstring{decode()}{decode()}}
@@ -28,7 +57,47 @@ Remaining 9 bytes include the number of bytes to read for each channel.\mbox{\Hy
 \doxysubsubsection{\texorpdfstring{encode()}{encode()}}
 {\footnotesize\ttfamily void Lossless\+Codec\+::encode (\begin{DoxyParamCaption}\item[{string}]{path\+\_\+to\+\_\+img,  }\item[{string}]{path\+\_\+to\+\_\+bin }\end{DoxyParamCaption})}
 
-reads audio file, creates single channel buffer (avg of stereo), calculates the residual values (uses folding to get only positive values) based on predictive coding and calculates optimal m; it then encodes the value with its respective \mbox{\hyperlink{class_golomb}{Golomb}} code and writes to file using \mbox{\hyperlink{class_bit_stream}{Bit\+Stream}} class. It also compares the original buffer with the residual buffer (with calculated entropies); The residual buffer will always have less entropy.
+Reads the ppm image and outputs the resulting binfile to the specified path. Starts by encoding the each value of error matrix and then encodes the header. The header is composed of 16 bytes with the the following information\+:
+
+First 3 bytes include the m value of each channel (1 byte each).
+
+2 bytes for the height and width each of the image.
+
+Remaining 9 bytes include the number of bytes to read for each channel.\mbox{\Hypertarget{class_lossless_codec_a2719985755483b2c223a8371fb2d2bf1}\label{class_lossless_codec_a2719985755483b2c223a8371fb2d2bf1}} 
+\index{LosslessCodec@{LosslessCodec}!predictorDec@{predictorDec}}
+\index{predictorDec@{predictorDec}!LosslessCodec@{LosslessCodec}}
+\doxysubsubsection{\texorpdfstring{predictorDec()}{predictorDec()}}
+{\footnotesize\ttfamily Mat Lossless\+Codec\+::predictor\+Dec (\begin{DoxyParamCaption}\item[{Mat}]{err }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+The same as the Encoder Predictor but used for decoding purposes.\mbox{\Hypertarget{class_lossless_codec_a8e8e0b533ac47072fedfcea0cff25e2d}\label{class_lossless_codec_a8e8e0b533ac47072fedfcea0cff25e2d}} 
+\index{LosslessCodec@{LosslessCodec}!predictorEnc@{predictorEnc}}
+\index{predictorEnc@{predictorEnc}!LosslessCodec@{LosslessCodec}}
+\doxysubsubsection{\texorpdfstring{predictorEnc()}{predictorEnc()}}
+{\footnotesize\ttfamily Mat Lossless\+Codec\+::predictor\+Enc (\begin{DoxyParamCaption}\item[{Mat}]{img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Non-\/linear predictor of J\+P\+E\+G-\/\+LS, receives the image matrix, calculates de residual values and returns the entropy matrix.\mbox{\Hypertarget{class_lossless_codec_a4743bf0079aa91213f014838876c7004}\label{class_lossless_codec_a4743bf0079aa91213f014838876c7004}} 
+\index{LosslessCodec@{LosslessCodec}!removePadding@{removePadding}}
+\index{removePadding@{removePadding}!LosslessCodec@{LosslessCodec}}
+\doxysubsubsection{\texorpdfstring{removePadding()}{removePadding()}}
+{\footnotesize\ttfamily string Lossless\+Codec\+::remove\+Padding (\begin{DoxyParamCaption}\item[{string}]{bits }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Removes the padding added by \mbox{\hyperlink{class_lossless_codec_afcd64351cedd5931a4ddd897ff5017ff}{to\+Byte()}} and returns a golomb code\mbox{\Hypertarget{class_lossless_codec_afcd64351cedd5931a4ddd897ff5017ff}\label{class_lossless_codec_afcd64351cedd5931a4ddd897ff5017ff}} 
+\index{LosslessCodec@{LosslessCodec}!toByte@{toByte}}
+\index{toByte@{toByte}!LosslessCodec@{LosslessCodec}}
+\doxysubsubsection{\texorpdfstring{toByte()}{toByte()}}
+{\footnotesize\ttfamily string Lossless\+Codec\+::to\+Byte (\begin{DoxyParamCaption}\item[{string}]{bits }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Turns a string of n bits in \mbox{\hyperlink{class_golomb}{Golomb}} Coding to byte sized string For the unary part \textquotesingle{}1\textquotesingle{}s are added to the left most bits The binary part \textquotesingle{}0\textquotesingle{}s are added
+
+Eg. 001 110 -\/$>$ 11111001 00000110
+
+Most likely the reason the encoded filesize is so big\mbox{\Hypertarget{class_lossless_codec_acc7d1c15a723b1a4c8dfaa7d44d4c133}\label{class_lossless_codec_acc7d1c15a723b1a4c8dfaa7d44d4c133}} 
+\index{LosslessCodec@{LosslessCodec}!toYUV@{toYUV}}
+\index{toYUV@{toYUV}!LosslessCodec@{LosslessCodec}}
+\doxysubsubsection{\texorpdfstring{toYUV()}{toYUV()}}
+{\footnotesize\ttfamily void Lossless\+Codec\+::to\+Y\+UV (\begin{DoxyParamCaption}\item[{Mat}]{img,  }\item[{Mat $\ast$}]{yuv\+\_\+channels }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Converting image in R\+GB colorspace to Y\+UV 4\+:2\+:0 colorspace
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 

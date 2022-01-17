@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['writebit_0',['writeBit',['../class_bit_stream.html#aa86adee7779cf956e70348f392a1a985',1,'BitStream']]],
-  ['writebits_1',['writeBits',['../class_bit_stream.html#a5ffddb35eef66aea10e0241d601be56c',1,'BitStream']]]
+  ['tobyte_65',['toByte',['../class_lossless_codec.html#afcd64351cedd5931a4ddd897ff5017ff',1,'LosslessCodec']]],
+  ['toyuv_66',['toYUV',['../class_lossless_codec.html#acc7d1c15a723b1a4c8dfaa7d44d4c133',1,'LosslessCodec']]]
 ];

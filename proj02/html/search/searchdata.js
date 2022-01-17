@@ -3,7 +3,7 @@ var indexSectionsWithContent =
   0: "bcdefghlmnprstw",
   1: "bgl",
   2: "bglt",
-  3: "bcdefghlprw",
+  3: "bcdefghlprtw",
   4: "cmns"
 };
 

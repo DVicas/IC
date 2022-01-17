@@ -17,6 +17,27 @@ vector$<$ int $>$ \mbox{\hyperlink{class_bit_stream_a51741df884698cb9221e2548ca2
 \item 
 void \mbox{\hyperlink{class_bit_stream_a9c7473b195e8e7087c51dc67c92b5ea6}{close}} (void)
 \end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_bit_stream_a9d08dbe5342e5ee3486667e0908143be}\label{class_bit_stream_a9d08dbe5342e5ee3486667e0908143be}} 
+vector$<$ int $>$ {\bfseries buffer}
+\item 
+\mbox{\Hypertarget{class_bit_stream_addd5f4d3dddfbb9ba33a276f5b7fb977}\label{class_bit_stream_addd5f4d3dddfbb9ba33a276f5b7fb977}} 
+int {\bfseries z} = 0
+\item 
+\mbox{\Hypertarget{class_bit_stream_a5a20e95fd5cc1529b7778becc176a9ed}\label{class_bit_stream_a5a20e95fd5cc1529b7778becc176a9ed}} 
+fstream {\bfseries in}
+\item 
+\mbox{\Hypertarget{class_bit_stream_a1890960c73a819d8f8442948f18c142c}\label{class_bit_stream_a1890960c73a819d8f8442948f18c142c}} 
+fstream {\bfseries out}
+\item 
+\mbox{\Hypertarget{class_bit_stream_a1a24bbd63202b024b88515568605523c}\label{class_bit_stream_a1a24bbd63202b024b88515568605523c}} 
+int {\bfseries bitcount} = 0
+\item 
+\mbox{\Hypertarget{class_bit_stream_abb707d82249dbea697b5604c9cf6a459}\label{class_bit_stream_abb707d82249dbea697b5604c9cf6a459}} 
+char {\bfseries curr\+\_\+byte}
+\end{DoxyCompactItemize}
 
 
 \doxysubsection{Constructor \& Destructor Documentation}
@@ -47,7 +68,7 @@ Useful method to reallocate memory\mbox{\Hypertarget{class_bit_stream_a51741df88
 \doxysubsubsection{\texorpdfstring{readBit()}{readBit()}}
 {\footnotesize\ttfamily int Bit\+Stream\+::read\+Bit (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
 
-this function will read and return one bit (MSB) from a given input file ~\newline
+this function will read and return one bit (M\+SB) from a given input file ~\newline
 \mbox{\Hypertarget{class_bit_stream_af5135c8e770ed39dbc2a14426655eddd}\label{class_bit_stream_af5135c8e770ed39dbc2a14426655eddd}} 
 \index{BitStream@{BitStream}!readBits@{readBits}}
 \index{readBits@{readBits}!BitStream@{BitStream}}

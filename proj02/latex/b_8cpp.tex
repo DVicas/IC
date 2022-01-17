@@ -2,7 +2,7 @@
 \label{b_8cpp}\index{b.cpp@{b.cpp}}
 
 
-This file refers to the project\textquotesingle{}s second challenge. It demonstrates the developed audio codecs that relie on predictive coding. To run the program successfuly you must include the option chosen (lossy or lossless), one audio file that must be .wav and a file name for the decompressed audio. lossless option -\/\texorpdfstring{$>$}{>} ./b lossless sample06.\+wav example.\+wav lossy option -\/\texorpdfstring{$>$}{>} ./b lossy sample06.\+wav example.\+wav.  
+This file refers to the project\textquotesingle{}s second challenge. It demonstrates the developed audio codecs that relie on predictive coding. To run the program successfuly you must include the option chosen (lossy or lossless), one audio file that must be .wav and a file name for the decompressed audio. lossless option -\/$>$ ./b lossless sample06.\+wav example.\+wav lossy option -\/$>$ ./b lossy sample06.\+wav example.\+wav.  
 
 
 {\ttfamily \#include $<$fstream$>$}\newline
@@ -50,12 +50,12 @@ short $\ast$ \mbox{\hyperlink{b_8cpp_a2ba8a7dbc1986adffb16f481d5b55fa3}{mono\+\_
 \item 
 int \mbox{\hyperlink{b_8cpp_af0bbed14cf6294c187499179ee38189d}{num\+\_\+items}}
 \item 
-SF\+\_\+\+INFO \mbox{\hyperlink{b_8cpp_a6993a4314b1f21cc6aa5614009106c94}{sfinfo}}
+S\+F\+\_\+\+I\+N\+FO \mbox{\hyperlink{b_8cpp_a6993a4314b1f21cc6aa5614009106c94}{sfinfo}}
 \end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
-This file refers to the project\textquotesingle{}s second challenge. It demonstrates the developed audio codecs that relie on predictive coding. To run the program successfuly you must include the option chosen (lossy or lossless), one audio file that must be .wav and a file name for the decompressed audio. lossless option -\/\texorpdfstring{$>$}{>} ./b lossless sample06.\+wav example.\+wav lossy option -\/\texorpdfstring{$>$}{>} ./b lossy sample06.\+wav example.\+wav. 
+This file refers to the project\textquotesingle{}s second challenge. It demonstrates the developed audio codecs that relie on predictive coding. To run the program successfuly you must include the option chosen (lossy or lossless), one audio file that must be .wav and a file name for the decompressed audio. lossless option -\/$>$ ./b lossless sample06.\+wav example.\+wav lossy option -\/$>$ ./b lossy sample06.\+wav example.\+wav. 
 
 
 
@@ -66,7 +66,7 @@ This file refers to the project\textquotesingle{}s second challenge. It demonstr
 \doxysubsubsection{\texorpdfstring{calculate\_m()}{calculate\_m()}}
 {\footnotesize\ttfamily int calculate\+\_\+m (\begin{DoxyParamCaption}\item[{int}]{sum }\end{DoxyParamCaption})}
 
-This function will calculate the \textquotesingle{}optimal\textquotesingle{} m with the formula -\/\texorpdfstring{$>$}{>} ceil(-\/1/log2(mean/(mean+1)))\mbox{\Hypertarget{b_8cpp_a0a32b2a80af3a64acb8a173220d77af9}\label{b_8cpp_a0a32b2a80af3a64acb8a173220d77af9}} 
+This function will calculate the \textquotesingle{}optimal\textquotesingle{} m with the formula -\/$>$ ceil(-\/1/log2(mean/(mean+1)))\mbox{\Hypertarget{b_8cpp_a0a32b2a80af3a64acb8a173220d77af9}\label{b_8cpp_a0a32b2a80af3a64acb8a173220d77af9}} 
 \index{b.cpp@{b.cpp}!defolding@{defolding}}
 \index{defolding@{defolding}!b.cpp@{b.cpp}}
 \doxysubsubsection{\texorpdfstring{defolding()}{defolding()}}
@@ -84,7 +84,7 @@ Transforms an abritrary number into a positive number. If the given residual is 
 \doxysubsubsection{\texorpdfstring{histograms()}{histograms()}}
 {\footnotesize\ttfamily int histograms (\begin{DoxyParamCaption}\item[{short $\ast$}]{buffer,  }\item[{short $\ast$}]{error\+\_\+buffer }\end{DoxyParamCaption})}
 
-calculating histograms and respective entropies, being the error\+\_\+buffer \texorpdfstring{$<$}{<} buffer\mbox{\Hypertarget{b_8cpp_af97415554e20f9ec0a1c10afdcd88645}\label{b_8cpp_af97415554e20f9ec0a1c10afdcd88645}} 
+calculating histograms and respective entropies, being the error\+\_\+buffer $<$ buffer\mbox{\Hypertarget{b_8cpp_af97415554e20f9ec0a1c10afdcd88645}\label{b_8cpp_af97415554e20f9ec0a1c10afdcd88645}} 
 \index{b.cpp@{b.cpp}!lossless\_decode@{lossless\_decode}}
 \index{lossless\_decode@{lossless\_decode}!b.cpp@{b.cpp}}
 \doxysubsubsection{\texorpdfstring{lossless\_decode()}{lossless\_decode()}}
@@ -127,6 +127,6 @@ static number of items of the mono channel ( half of the wav fil samples ) \mbox
 \index{b.cpp@{b.cpp}!sfinfo@{sfinfo}}
 \index{sfinfo@{sfinfo}!b.cpp@{b.cpp}}
 \doxysubsubsection{\texorpdfstring{sfinfo}{sfinfo}}
-{\footnotesize\ttfamily SF\+\_\+\+INFO sfinfo}
+{\footnotesize\ttfamily S\+F\+\_\+\+I\+N\+FO sfinfo}
 
 audio file data structure 
