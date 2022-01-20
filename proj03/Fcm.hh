@@ -13,19 +13,19 @@ class Fcm{
         void read();
         set<char> getA();
         vector<char> getV();
-        void print_permutations(char prefix[], int n) ;
+        void print_permutations(char prefix[], int n, int k) ;
     private:
         fstream f;
         set<char> alphabet;
         vector<char> v;
         map<char, int> m;
         int count = 0;
-        int kkk;
 };
 
 Fcm::Fcm(string file, int k){
-    kkk = k;
     f.open(file);
+    read();
+    print_permutations("", v.size(), k);
 }
 
 void Fcm::read(){
@@ -55,7 +55,7 @@ void Fcm::print_permutations(char prefix[], int n, int k)
         int i,j,l=strlen(prefix); 
         char newprefix[l+2];  
          
-        if(kkk==0) 
+        if(k==0) 
         { 
            printf("%d %s\n",++count,prefix); 
            return; 
@@ -68,6 +68,6 @@ void Fcm::print_permutations(char prefix[], int n, int k)
             newprefix[l] = v.at(i); 
             newprefix[l+1] = '\0';  
              
-            print_permutations(newprefix, n, kkk-1); 
+            print_permutations(newprefix, n, k - 1); 
         } 
 }
