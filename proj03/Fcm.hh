@@ -1,73 +1,67 @@
+/*! \file Fcm.hh
+    \brief Class that allows 
+*/
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
 #include <map>
+#include <algorithm>
 
 using namespace std;
 
 
 class Fcm{
     public: 
+        
         Fcm(string file, int k);
+        void openfile();
         void read();
-        set<char> getA();
-        vector<char> getV();
-        void print_permutations(char prefix[], int n, int k) ;
+        map<string, int> getA();
+        string lower(string s);
+
     private:
+        int k_arg;
+        string i_file;
         fstream f;
-        set<char> alphabet;
-        vector<char> v;
-        map<char, int> m;
-        int count = 0;
+        map<string, int> alphabet;
 };
 
 Fcm::Fcm(string file, int k){
-    f.open(file);
-    read();
-    print_permutations("", v.size(), k);
+    k_arg = k;
+    i_file = file;
 }
-
+void Fcm::openfile(){
+    if(not i_file.empty()){
+        f.open(i_file);
+    }else{
+        cout << "Could not open input file!" << endl;
+    }
+}
 void Fcm::read(){
-    
     char c;
+    string ctx = "";
     while(f.get(c)){
-        alphabet.insert(tolower(c));
-    }
-    
-    for(auto c : alphabet){
-        v.push_back(c);
+        ctx += tolower(c);
+        string s = lower(string(1, c));
+        alphabet[s]++;
+ 
+        if(ctx.length() == k_arg){
+            alphabet[ctx]++;
+            ctx = ctx.substr(1);
+        }
+            
     }
 }
-set<char> Fcm::getA(){
+map<string, int> Fcm::getA(){
     
     return alphabet;
-    
-}
-vector<char> Fcm::getV(){
-    
-    return v;
-    
 }
 
-void Fcm::print_permutations(char prefix[], int n, int k)  
-{ 
-        int i,j,l=strlen(prefix); 
-        char newprefix[l+2];  
-         
-        if(k==0) 
-        { 
-           printf("%d %s\n",++count,prefix); 
-           return; 
-        } 
-        for(i=0;i<n;i++)  
-        { 
-            //Concatenation of currentPrefix + arr[i] = newPrefix 
-            for(j=0;j<l;j++)    
-            newprefix[j] = prefix[j]; 
-            newprefix[l] = v.at(i); 
-            newprefix[l+1] = '\0';  
-             
-            print_permutations(newprefix, n, k - 1); 
-        } 
+string Fcm::lower(string s){
+    
+    transform(s.begin(), s.end(), s.begin(),[](char c){ 
+        return tolower(c);});
+    return s;
 }
+
+
