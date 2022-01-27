@@ -79,7 +79,7 @@ double Fcm::calculate(){
         total += it->second;
         for(string x : aux){
             pi = (double) alphabet[it->first + x] / contexts[it->first];
-            if(pi == 0) pi = 0.1; //-TODO : CHANGE THIS 
+            if(pi == 0) pi = (double)smoothing_param / (contexts[it->first] + smoothing_param * aux.size()); //-TODO : CHANGE THIS 
             probability += pi * (log(pi)/log(2));
         }
         entropies[it->first] = -1 * probability;
