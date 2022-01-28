@@ -7,7 +7,7 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-    Fcm fcm("teste.txt", 2, 2);
+    Fcm fcm("text.txt", 2, .2);
     fcm.openfile();
     fcm.read();
     double entropy = fcm.calculate();
@@ -22,7 +22,7 @@ int main(int argc, char* argv[]){
     //     }   
     // }
     // for(auto ctx : fcm.getCtx()){
-    //     //cout << ctx << endl ;
+    //     cout << ctx.first << endl ;
     // }
     
     
