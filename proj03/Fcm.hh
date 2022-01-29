@@ -13,7 +13,7 @@ using namespace std;
 class Fcm{
     public: 
         
-        Fcm(string file, int k, int alpha);
+        Fcm(string file, int k, double alpha);
         void openfile();
         void read();
         double calculate();
@@ -25,7 +25,7 @@ class Fcm{
 
     private:
         int k_arg;
-        int smoothing_param;
+        double smoothing_param;
         string i_file;
         fstream f;
         map<string, int> contexts;
@@ -33,7 +33,7 @@ class Fcm{
         map<string, double> entropies;
 };
 
-Fcm::Fcm(string file, int k, int alpha){
+Fcm::Fcm(string file, int k, double alpha){
     k_arg = k;
     i_file = file;
     smoothing_param = alpha;
@@ -78,8 +78,7 @@ double Fcm::calculate(){
     for(it = contexts.begin(); it != contexts.end(); it++){
         total += it->second;
         for(string x : aux){
-            pi = (double) alphabet[it->first + x] / it->second;
-            if(pi == 0) pi = (double)smoothing_param / (it->second + smoothing_param * aux.size()); //-TODO : CHANGE THIS 
+            pi = (double) (smoothing_param + alphabet[it->first + x]) / (it->second + smoothing_param * aux.size());
             probability += pi * (log(pi)/log(2));
         }
         entropies[it->first] = -1 * probability;
