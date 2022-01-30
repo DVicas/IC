@@ -4,39 +4,6 @@
 #include "Fcm.hh"
 using namespace std;
 
-// double calculate(map<string, int> alphabet, double smoothing_param, map<string, int> contexts){
-//     map<string, int>::iterator it;
-//     map<string, double> entropies;
-//     vector<string> aux;
-//     map<string, int> all_elems;
-//     for(it = alphabet.begin(); it != alphabet.end(); ++it){
-//         if(it->first.length() == 1){
-//             aux.push_back(it->first);
-//         }
-//     }
-    
-//     double probability = 0.0;
-//     double pi = 0.0;
-//     int total = 0;
-
-//     for(it = contexts.begin(); it != contexts.end(); it++){
-//         total += it->second;
-//         for(string x : aux){
-//             pi = (double) alphabet[it->first + x] / it->second;
-//             if(pi == 0) pi = (double)smoothing_param / (it->second + smoothing_param * aux.size()); //-TODO : CHANGE THIS 
-//             probability += pi * (log(pi)/log(2));
-//         }
-//         entropies[it->first] = -1 * probability;
-//         probability = 0.0;
-//     }
-
-//     double total_entropy = 0.0;
-//     for(it = contexts.begin(); it != contexts.end(); it++){
-//         total_entropy += ((double) it->second / total) * entropies[it->first];
-//     }
-//     return total_entropy;        
-// }
-
 double calculate(map<string, int> alphabet, double smoothing_param, map<string, int> contexts){
     map<string, int>::iterator it;
     map<string, double> entropies;
@@ -47,35 +14,25 @@ double calculate(map<string, int> alphabet, double smoothing_param, map<string, 
             aux.push_back(it->first);
         }
     }
-    
     double probability = 0.0;
     double pi = 0.0;
     int total = 0;
-    int j=0;
 
     for(it = contexts.begin(); it != contexts.end(); it++){
         total += it->second;
         for(string x : aux){
-            pi = (double) alphabet[it->first + x] / it->second;
-            // if (it->second > 0) cout << it->second << "\t " << aux.size() << endl;
-            if(pi == 0 or it->second == 0) {
-                pi = (double)smoothing_param / (it->second + smoothing_param * aux.size()); //-TODO : CHANGE THIS 
-            }
-            probability += pi * (log(pi)/log(2));
+            pi = (double) (smoothing_param + alphabet[it->first + x]) / (it->second + smoothing_param * aux.size());
+            probability += pi * log2(pi);
         }
-        entropies[it->first] = -1 * probability;
-        // if (isinf(entropies[it->first])) cout << it->first << "\t " << probability << endl;
-        // cout << entropies[it->first] << endl;
+        entropies[it->first] = 1*probability;
         probability = 0.0;
     }
 
     double total_entropy = 0.0;
     for(it = contexts.begin(); it != contexts.end(); it++){
-        // cout << entropies[it->first] << endl;
         total_entropy += ((double) it->second / total) * entropies[it->first];
-        // if (isnan(((double) it->second / total) * entropies[it->first])) cout << "it: " << it->second << "\t ent -> "<< entropies[it->first] <<endl;
     }
-    return total_entropy;        
+    return total_entropy;   
 }
 
 string lower(string s){
@@ -92,6 +49,8 @@ int main(int argc, char* argv[]){
 
     int n_bits=0;
 
+
+    double alpha = 0.1;
     int k=3;
     double most_sim_ent=999999;
     string lang;
@@ -104,15 +63,21 @@ int main(int argc, char* argv[]){
         fcm.read();
         
         map<string, int>::iterator it;
-        map<string, int> alph = fcm.getCtx();
-        
-        fcm.close();
+        map<string, int> contexts = fcm.getCtx();
+        map<string, int> alphabet = fcm.getA();
 
-        for(it = alph.begin(); it != alph.end(); ++it){
-            if(it->first.length() != 1){
+        for(it = contexts.begin(); it != contexts.end(); ++it){
+            
+                contexts.find(it->first)->second=0;
                 // cout << it->first << "\t" << it->second << endl;
-                alph.find(it->first)->second=0;
-            }   
+            
+        }
+
+        for(it = contexts.begin(); it != contexts.end(); ++it){
+            
+                // cout << it->first << "\t" << it->second << endl;
+                alphabet.find(it->first)->second=0;
+            
         }
 
         fstream target("textos/teste.txt");
@@ -123,25 +88,32 @@ int main(int argc, char* argv[]){
             if(c == '\n' or c == '\n') continue;
             ctx += tolower(c);
             string s = lower(string(1, c));
-            
+            alphabet[s]++;
+
             if(ctx.length() == k + 1){
-                alph[ctx.substr(0, k)]++;
+                alphabet[ctx]++;
+                contexts[ctx.substr(0, k)]++;
                 ctx = ctx.substr(1);
             }
         }
 
-        double aux = calculate(fcm.getA(), 0.1, alph);
-        cout << aux << endl;
-        if (fcm.calculate()-aux < most_sim_ent){
-            most_sim_ent = fcm.calculate()-aux;
+        double aux = calculate(alphabet, alpha, contexts);
+
+        
+        if (abs(fcm.calculate()-aux) < most_sim_ent){
+            most_sim_ent = abs(fcm.calculate()-aux);
             lang = filelist[i];
         }
+        cout << filelist[i] << endl;
+        cout << "ent " << fcm.calculate() << endl;
+        cout << "ent " << aux << endl;
+
 
         fcm.close();
 
     }
 
-    cout << lang << endl;
+    cout << "sda" << lang << endl;
     cout << most_sim_ent << endl;
     
     return 0;
