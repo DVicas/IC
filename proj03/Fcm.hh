@@ -7,6 +7,7 @@
 #include <map>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -17,9 +18,11 @@ class Fcm{
         void openfile();
         void read();
         double calculate();
+        vector<char> getAlphabet();
         map<string, int> getA();
         map<string, int> getCtx();
         map<string, double> getH();
+        int getTotal();
         string lower(string s);
         void close();
 
@@ -31,12 +34,15 @@ class Fcm{
         map<string, int> contexts;
         map<string, int> alphabet;
         map<string, double> entropies;
+        vector<char> aux;
+        int total;
 };
 
 Fcm::Fcm(string file, int k, double alpha){
     k_arg = k;
     i_file = file;
     smoothing_param = alpha;
+    total=0;
 }
 void Fcm::openfile(){
     if(not i_file.empty()){
@@ -51,45 +57,43 @@ void Fcm::read(){
     while(f.get(c)){
         if(c == '\n' or c == '\n') continue;
         ctx += tolower(c);
+        if (!count(aux.begin(), aux.end(), (char) tolower(c))) aux.push_back((char)tolower(c));
         string s = lower(string(1, c));
         alphabet[s]++;
-        
         if(ctx.length() == k_arg + 1){
             alphabet[ctx]++;
             contexts[ctx.substr(0, k_arg)]++;
             ctx = ctx.substr(1);
+            total++;
         }     
     }
+    
 }
 
 double Fcm::calculate(){
     map<string, int>::iterator it;
-    vector<string> aux;
-    map<string, int> all_elems;
-    for(it = alphabet.begin(); it != alphabet.end(); ++it){
-        if(it->first.length() == 1){
-            aux.push_back(it->first);
-        }
-    }
     double probability = 0.0;
     double pi = 0.0;
-    int total = 0;
-
-    for(it = contexts.begin(); it != contexts.end(); it++){
-        total += it->second;
-        for(string x : aux){
-            pi = (double) (smoothing_param + alphabet[it->first + x]) / (it->second + smoothing_param * aux.size());
-            probability += pi * (log(pi)/log(2));
-        }
-        entropies[it->first] = -1 * probability;
-        probability = 0.0;
-    }
-
     double total_entropy = 0.0;
+
     for(it = contexts.begin(); it != contexts.end(); it++){
-        total_entropy += ((double) it->second / total) * entropies[it->first];
+
+        for(char x : aux){
+            pi = (double) (smoothing_param + alphabet[it->first + x]) / (it->second + smoothing_param * aux.size());
+            entropies[it->first] += -pi * log2(pi);
+        }
+        total_entropy += ((double) it->second * entropies[it->first]) / total;
     }
+
     return total_entropy;        
+}
+
+vector <char> Fcm::getAlphabet(){
+    return aux;
+}
+
+int Fcm::getTotal(){
+    return total;
 }
 
 map<string, int> Fcm::getA(){

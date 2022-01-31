@@ -7,7 +7,7 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-    Fcm fcm("text.txt", 2, .2);
+    Fcm fcm("textos/teste.txt", 3, .1);
     fcm.openfile();
     fcm.read();
     double entropy = fcm.calculate();
@@ -15,21 +15,20 @@ int main(int argc, char* argv[]){
     fcm.close();
     map<string, int>::iterator it;
     map<string, double>::iterator dit;
-    map<string, int> alph = fcm.getCtx();
+    map<string, int> alph = fcm.getA();
     // for(it = alph.begin(); it != alph.end(); ++it){
-    //     if(it->first.length() != 1){
-    //         cout << it->first << '\t' << it->second << endl;
-    //     }   
+        // if(it->second==0) alph.erase(it->first);
+        // cout << it->first << '\t' << it->second << endl; 
     // }
     // for(auto ctx : fcm.getCtx()){
-    //     cout << ctx.first << endl ;
+    //     cout << ctx.first << "\t" << ctx.second << endl ;
     // }
     
     
     
-    map<string, double> entropies = fcm.getH();
-    for(dit = entropies.begin(); dit != entropies.end(); ++dit){
-        //cout << dit->first << '\t' << dit->second << endl;
-    }   
+    // map<string, double> entropies = fcm.getH();
+    // for(dit = entropies.begin(); dit != entropies.end(); ++dit){
+    //     //cout << dit->first << '\t' << dit->second << endl;
+    // }   
     return 0;
 }

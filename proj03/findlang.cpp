@@ -4,78 +4,21 @@
 #include "Fcm.hh"
 using namespace std;
 
-// double calculate(map<string, int> alphabet, double smoothing_param, map<string, int> contexts){
-//     map<string, int>::iterator it;
-//     map<string, double> entropies;
-//     vector<string> aux;
-//     map<string, int> all_elems;
-//     for(it = alphabet.begin(); it != alphabet.end(); ++it){
-//         if(it->first.length() == 1){
-//             aux.push_back(it->first);
-//         }
-//     }
-    
-//     double probability = 0.0;
-//     double pi = 0.0;
-//     int total = 0;
-
-//     for(it = contexts.begin(); it != contexts.end(); it++){
-//         total += it->second;
-//         for(string x : aux){
-//             pi = (double) alphabet[it->first + x] / it->second;
-//             if(pi == 0) pi = (double)smoothing_param / (it->second + smoothing_param * aux.size()); //-TODO : CHANGE THIS 
-//             probability += pi * (log(pi)/log(2));
-//         }
-//         entropies[it->first] = -1 * probability;
-//         probability = 0.0;
-//     }
-
-//     double total_entropy = 0.0;
-//     for(it = contexts.begin(); it != contexts.end(); it++){
-//         total_entropy += ((double) it->second / total) * entropies[it->first];
-//     }
-//     return total_entropy;        
-// }
-
-double calculate(map<string, int> alphabet, double smoothing_param, map<string, int> contexts){
+double calculate(map<string, int> alphabet, double smoothing_param, map<string, int> contexts, vector<char> aux, long total){
     map<string, int>::iterator it;
     map<string, double> entropies;
-    vector<string> aux;
-    map<string, int> all_elems;
-    for(it = alphabet.begin(); it != alphabet.end(); ++it){
-        if(it->first.length() == 1){
-            aux.push_back(it->first);
-        }
-    }
-    
-    double probability = 0.0;
     double pi = 0.0;
-    int total = 0;
-    int j=0;
-
-    for(it = contexts.begin(); it != contexts.end(); it++){
-        total += it->second;
-        for(string x : aux){
-            pi = (double) alphabet[it->first + x] / it->second;
-            // if (it->second > 0) cout << it->second << "\t " << aux.size() << endl;
-            if(pi == 0 or it->second == 0) {
-                pi = (double)smoothing_param / (it->second + smoothing_param * aux.size()); //-TODO : CHANGE THIS 
-            }
-            probability += pi * (log(pi)/log(2));
-        }
-        entropies[it->first] = -1 * probability;
-        // if (isinf(entropies[it->first])) cout << it->first << "\t " << probability << endl;
-        // cout << entropies[it->first] << endl;
-        probability = 0.0;
-    }
-
     double total_entropy = 0.0;
+
     for(it = contexts.begin(); it != contexts.end(); it++){
-        // cout << entropies[it->first] << endl;
-        total_entropy += ((double) it->second / total) * entropies[it->first];
-        // if (isnan(((double) it->second / total) * entropies[it->first])) cout << "it: " << it->second << "\t ent -> "<< entropies[it->first] <<endl;
+        for(char x : aux){
+            pi = (double) (smoothing_param + alphabet[it->first + x]) / (it->second + smoothing_param * aux.size());
+            entropies[it->first] += -pi * log2(pi);
+        }
+        total_entropy += ((double) it->second * entropies[it->first]) / total;
     }
-    return total_entropy;        
+
+    return total_entropy;   
 }
 
 string lower(string s){
@@ -90,59 +33,69 @@ string lower(string s){
 
 int main(int argc, char* argv[]){
 
-    int n_bits=0;
-
-    int k=3;
+    double alpha = stod(argv[3]);
+    int k=stoi(argv[2]);
     double most_sim_ent=999999;
+    double finalEntropy;
     string lang;
-    string filelist[] = {"textos/czech.txt","textos/dutch.txt","textos/eng.txt","textos/esp.txt","textos/fin.txt","textos/fr.txt","textos/ger.txt","textos/ita.txt","textos/pol.txt","textos/pt.txt","textos/slovak.txt","textos/swe.txt"};
+    string filelist[] = {"textos/dutch.txt","textos/eng.txt","textos/esp.txt","textos/fin.txt","textos/fr.txt","textos/ger.txt","textos/ita.txt","textos/pol.txt","textos/pt.txt","textos/swe.txt"};
 
-    for (int i=0; i<12; i++){
+    for (int i=0; i<10; i++){
 
-        Fcm fcm(filelist[i], k, 0.1);
+        Fcm fcm(filelist[i], k, alpha);
         fcm.openfile();
         fcm.read();
+        double ent = fcm.calculate();
         
         map<string, int>::iterator it;
-        map<string, int> alph = fcm.getCtx();
-        
-        fcm.close();
+        map<string, int> contexts = fcm.getCtx();
+        map<string, int> alphabet = fcm.getA();
 
-        for(it = alph.begin(); it != alph.end(); ++it){
-            if(it->first.length() != 1){
-                // cout << it->first << "\t" << it->second << endl;
-                alph.find(it->first)->second=0;
-            }   
+
+        for(it = contexts.begin(); it != contexts.end(); ++it){
+            contexts[it->first]=0;
         }
 
-        fstream target("textos/teste.txt");
+        for(it = alphabet.begin(); it != alphabet.end(); ++it){
+            alphabet[it->first]=0;
+        }
+       
 
+        fstream target(argv[1]);
+        long total=0;
         string ctx = string();
         char c;
         while(target.get(c)){
             if(c == '\n' or c == '\n') continue;
             ctx += tolower(c);
             string s = lower(string(1, c));
-            
+            alphabet[s]++;
             if(ctx.length() == k + 1){
-                alph[ctx.substr(0, k)]++;
+                alphabet[ctx]++;
+                contexts[ctx.substr(0, k)]++;
                 ctx = ctx.substr(1);
-            }
+                total++;
+            }  
         }
 
-        double aux = calculate(fcm.getA(), 0.1, alph);
-        cout << aux << endl;
-        if (abs(fcm.calculate()-aux) < most_sim_ent){
-            most_sim_ent = abs(fcm.calculate()-aux);
+        double a = calculate(alphabet, alpha, contexts, fcm.getAlphabet(), total);
+
+        if (abs(ent-a) < most_sim_ent){
+            most_sim_ent = abs(ent-a);
             lang = filelist[i];
+            finalEntropy = ent;
         }
-
+        cout << filelist[i] << endl;
+        cout << "entropia referencia: " << ent << endl;
+        cout << "entropia target: " << a << endl;
+        
         fcm.close();
 
     }
 
-    cout << lang << endl;
+    cout << "Linguagem : " << lang.substr(7, lang.length()-3) << ", com entropia de : " << finalEntropy << endl;
     cout << most_sim_ent << endl;
     
     return 0;
 }
+

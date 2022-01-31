@@ -4,37 +4,21 @@
 #include "Fcm.hh"
 using namespace std;
 
-double calculate(map<string, int> alphabet, double smoothing_param, map<string, int> contexts){
+double calculate(map<string, int> alphabet, double smoothing_param, map<string, int> contexts, vector<char> aux, long total){
     map<string, int>::iterator it;
     map<string, double> entropies;
-    vector<string> aux;
-    map<string, int> all_elems;
-    for(it = alphabet.begin(); it != alphabet.end(); ++it){
-        if(it->first.length() == 1){
-            aux.push_back(it->first);
-        }
-    }
-    
-    double probability = 0.0;
     double pi = 0.0;
-    int total = 0;
-
-    for(it = contexts.begin(); it != contexts.end(); it++){
-        total += it->second;
-        for(string x : aux){
-            pi = (double) alphabet[it->first + x] / it->second;
-            if(pi == 0) pi = (double)smoothing_param / (it->second + smoothing_param * aux.size()); //-TODO : CHANGE THIS 
-            probability += pi * (log(pi)/log(2));
-        }
-        entropies[it->first] = -1 * probability;
-        probability = 0.0;
-    }
-
     double total_entropy = 0.0;
+
     for(it = contexts.begin(); it != contexts.end(); it++){
-        total_entropy += ((double) it->second / total) * entropies[it->first];
+        for(char x : aux){
+            pi = (double) (smoothing_param + alphabet[it->first + x]) / (it->second + smoothing_param * aux.size());
+            entropies[it->first] += -pi * log2(pi);
+        }
+        total_entropy += ((double) it->second * entropies[it->first]) / total;
     }
-    return total_entropy;        
+
+    return total_entropy;   
 }
 
 string lower(string s){
@@ -49,50 +33,48 @@ string lower(string s){
 
 int main(int argc, char* argv[]){
 
-    int n_bits=0;
+    int k = stoi(argv[2]);
+    double alpha=stod(argv[3]);
 
-    Fcm fcm("message.txt", 3, 0.1);
+    Fcm fcm(argv[1], k, alpha);
     fcm.openfile();
     fcm.read();
+    cout << fcm.calculate() << endl;
     
     map<string, int>::iterator it;
-    map<string, int> alph = fcm.getCtx();
+    map<string, int> contexts = fcm.getCtx();
+    map<string, int> alphabet = fcm.getA();
     
     fcm.close();
 
-    for(it = alph.begin(); it != alph.end(); ++it){
-        if(it->first.length() != 1){
-            // cout << it->first << "\t" << it->second << endl;
-            alph.find(it->first)->second=0;
-        }   
+    for(it = contexts.begin(); it != contexts.end(); ++it){
+        contexts[it->first]=0;
+    }
+    for(it = alphabet.begin(); it != alphabet.end(); ++it){
+        alphabet[it->first]=0;
     }
 
-    fstream target("message.txt");
+    fstream target(argv[4]);
 
     string ctx = string();
+    long total=0;
     char c;
     while(target.get(c)){
-        if(c == '\n' or c == '\n') continue;
-        ctx += tolower(c);
-        string s = lower(string(1, c));
-        
-        if(ctx.length() == 3 + 1){
-            alph[ctx.substr(0, 3)]++;
-            ctx = ctx.substr(1);
+            if(c == '\n' or c == '\n') continue;
+            ctx += tolower(c);
+            string s = lower(string(1, c));
+            alphabet[s]++;
+            if(ctx.length() == k + 1){
+                alphabet[ctx]++;
+                contexts[ctx.substr(0, k)]++;
+                ctx = ctx.substr(1);
+                total++;
+            }  
         }
-    }
 
-    for(it = alph.begin(); it != alph.end(); ++it){
-        if(it->first.length() != 1){
-            cout << it->first << "\t" << it->second << endl;
-        }   
-    }
+    double a = calculate(alphabet, alpha, contexts, fcm.getAlphabet(), total);
 
-    cout << fcm.calculate() << endl;
-
-    double a = calculate(fcm.getA(), 0.1, alph);
-
-    cout << a << endl;
+    cout << "EStimated bits : " << a << endl;
     
     return 0;
 }
