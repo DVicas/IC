@@ -35,6 +35,7 @@ int main(int argc, char* argv[]){
 
     int k = stoi(argv[2]);
     double alpha=stod(argv[3]);
+    double n_bits=0;
 
     Fcm fcm(argv[1], k, alpha);
     fcm.openfile();
@@ -44,15 +45,9 @@ int main(int argc, char* argv[]){
     map<string, int>::iterator it;
     map<string, int> contexts = fcm.getCtx();
     map<string, int> alphabet = fcm.getA();
+    vector<char> aux=fcm.getAlphabet();
     
     fcm.close();
-
-    for(it = contexts.begin(); it != contexts.end(); ++it){
-        contexts[it->first]=0;
-    }
-    for(it = alphabet.begin(); it != alphabet.end(); ++it){
-        alphabet[it->first]=0;
-    }
 
     fstream target(argv[4]);
 
@@ -60,21 +55,23 @@ int main(int argc, char* argv[]){
     long total=0;
     char c;
     while(target.get(c)){
-            if(c == '\n' or c == '\n') continue;
-            ctx += tolower(c);
-            string s = lower(string(1, c));
-            alphabet[s]++;
-            if(ctx.length() == k + 1){
-                alphabet[ctx]++;
-                contexts[ctx.substr(0, k)]++;
-                ctx = ctx.substr(1);
-                total++;
-            }  
+        if(c == '\n' or c == '\t') continue;
+        
+        if(ctx.length() == k + 1){
+            if (alphabet[ctx] > 0){
+                n_bits += -log2((double) (alpha + alphabet[ctx]) / (contexts[ctx.substr(0,k)] + alpha * aux.size()));
+            }
+            ctx = ctx.substr(1) + (char) tolower(c);
+            total++;
         }
+        else{
+            ctx+=(char)c;
+        }
+    }
 
-    double a = calculate(alphabet, alpha, contexts, fcm.getAlphabet(), total);
+    //double a = calculate(alphabet, alpha, contexts, fcm.getAlphabet(), total);
 
-    cout << "EStimated bits : " << a << endl;
+    cout << "EStimated bits : " << n_bits/total << endl;
     
     return 0;
 }
