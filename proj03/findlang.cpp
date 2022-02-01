@@ -35,8 +35,7 @@ int main(int argc, char* argv[]){
 
     double alpha = stod(argv[3]);
     int k=stoi(argv[2]);
-    double most_sim_ent=999999;
-    double finalEntropy;
+    double finalBits=99999999;
     string lang;
     string filelist[] = {"textos/dutch.txt","textos/eng.txt","textos/esp.txt","textos/fin.txt","textos/fr.txt","textos/ger.txt","textos/ita.txt","textos/pol.txt","textos/pt.txt","textos/swe.txt"};
 
@@ -45,20 +44,13 @@ int main(int argc, char* argv[]){
         Fcm fcm(filelist[i], k, alpha);
         fcm.openfile();
         fcm.read();
-        double ent = fcm.calculate();
+
+        double n_bits=0;
         
         map<string, int>::iterator it;
         map<string, int> contexts = fcm.getCtx();
         map<string, int> alphabet = fcm.getA();
-
-
-        for(it = contexts.begin(); it != contexts.end(); ++it){
-            contexts[it->first]=0;
-        }
-
-        for(it = alphabet.begin(); it != alphabet.end(); ++it){
-            alphabet[it->first]=0;
-        }
+        vector<char> aux=fcm.getAlphabet();
        
 
         fstream target(argv[1]);
@@ -66,35 +58,32 @@ int main(int argc, char* argv[]){
         string ctx = string();
         char c;
         while(target.get(c)){
-            if(c == '\n' or c == '\n') continue;
-            ctx += tolower(c);
-            string s = lower(string(1, c));
-            alphabet[s]++;
+            if(c == '\n' or c == '\t') continue;
+        
             if(ctx.length() == k + 1){
-                alphabet[ctx]++;
-                contexts[ctx.substr(0, k)]++;
-                ctx = ctx.substr(1);
+                if (alphabet[ctx] > 0){
+                    n_bits += -log2((double) (alpha + alphabet[ctx]) / (contexts[ctx.substr(0,k)] + alpha * aux.size()));
+                }
+                ctx = ctx.substr(1) + (char) tolower(c);
                 total++;
-            }  
+            }
+            else{
+                ctx+=(char)c;
+            }
         }
 
-        double a = calculate(alphabet, alpha, contexts, fcm.getAlphabet(), total);
-
-        if (abs(ent-a) < most_sim_ent){
-            most_sim_ent = abs(ent-a);
+        if (n_bits/total < finalBits){
             lang = filelist[i];
-            finalEntropy = ent;
+            finalBits = n_bits/total;
         }
         cout << filelist[i] << endl;
-        cout << "entropia referencia: " << ent << endl;
-        cout << "entropia target: " << a << endl;
+        cout << "N_bits : " << n_bits/total << endl;
         
         fcm.close();
 
     }
 
-    cout << "Linguagem : " << lang.substr(7, lang.length()-3) << ", com entropia de : " << finalEntropy << endl;
-    cout << most_sim_ent << endl;
+    cout << "Linguagem : " << lang << ", com estimativa de : " << finalBits << " bits por simbolo" << endl;
     
     return 0;
 }
