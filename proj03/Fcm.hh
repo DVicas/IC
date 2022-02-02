@@ -30,6 +30,7 @@ class Fcm{
         int k_arg;
         double smoothing_param;
         string i_file;
+        ofstream o;
         fstream f;
         map<string, int> contexts;
         map<string, int> alphabet;
@@ -45,6 +46,7 @@ Fcm::Fcm(string file, int k, double alpha){
     total=0;
 }
 void Fcm::openfile(){
+    o.open("context_table.out");
     if(not i_file.empty()){
         f.open(i_file);
     }else{
@@ -77,14 +79,16 @@ double Fcm::calculate(){
     double total_entropy = 0.0;
 
     for(it = contexts.begin(); it != contexts.end(); it++){
-
+        o << "CTX: "<< it->first << "\t" << "TOTAL: "<< it->second << "\t";
         for(char x : aux){
             pi = (double) (smoothing_param + alphabet[it->first + x]) / (it->second + smoothing_param * aux.size());
             entropies[it->first] += -pi * log2(pi);
+             o << "'" << x << "': " << alphabet[it->first + x] << "\t";   
         }
+        o << "\n";
         total_entropy += ((double) it->second * entropies[it->first]) / total;
     }
-
+    o.close();
     return total_entropy;        
 }
 
