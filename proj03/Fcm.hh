@@ -1,5 +1,4 @@
-/*! \file Fcm.hh
-    \brief Class that allows 
+/*! \file Fcm.hh 
 */
 #include <iostream>
 #include <fstream>
@@ -40,12 +39,18 @@ class Fcm{
 };
 
 Fcm::Fcm(string file, int k, double alpha){
+    /**
+    * Class constructor, accepts a file name, order of the model k, and smoothing operator alpha
+    */
     k_arg = k;
     i_file = file;
     smoothing_param = alpha;
     total=0;
 }
 void Fcm::openfile(){
+    /**
+    * Allows the opening of the input/output streams
+    */
     o.open("context_table.out");
     if(not i_file.empty()){
         f.open(i_file);
@@ -54,6 +59,9 @@ void Fcm::openfile(){
     }
 }
 void Fcm::read(){
+    /**
+    * Reading function, stores the alphabet and contexts with length k and k+1; also, increments its values everytime they appear
+    */
     char c;
     string ctx = "";
     while(f.get(c)){
@@ -73,6 +81,9 @@ void Fcm::read(){
 }
 
 double Fcm::calculate(){
+    /**
+    * Calculates the total entropy. Iterates through all contexts, adding each character of the alphabet for each one, and using each value for entropy calculations purposes 
+    */
     map<string, int>::iterator it;
     double probability = 0.0;
     double pi = 0.0;
@@ -93,27 +104,43 @@ double Fcm::calculate(){
 }
 
 vector <char> Fcm::getAlphabet(){
+    /**
+    * getter
+    */
     return aux;
 }
 
 int Fcm::getTotal(){
+    /**
+    * getter
+    */
     return total;
 }
 
 map<string, int> Fcm::getA(){
+    /**
+    * k+1 contexts and alphabet getter
+    */
     
     return alphabet;
 }
 map<string, int> Fcm::getCtx(){
+    /**
+    * k contexts getter
+    */
     
     return contexts;
 }
 map<string, double> Fcm::getH(){
-    
+    /**
+    * entropy getter
+    */
     return entropies;
 }
 string Fcm::lower(string s){
-    
+    /**
+    * method that allows a given string to be returned with lower case letters only
+    */
     string x;
 
     for(char elem : s){
