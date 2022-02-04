@@ -61,10 +61,9 @@ int main(int argc, char* argv[]){
             if(c == '\n' or c == '\t') continue;
         
             if(ctx.length() == k + 1){
-                if (alphabet[ctx] > 0){
-                    n_bits += -log2((double) (alpha + alphabet[ctx]) / (contexts[ctx.substr(0,k)] + alpha * aux.size()));
-                }
-                ctx = ctx.substr(1) + (char) tolower(c);
+                n_bits += -log2((double) (alpha + alphabet[ctx]) / (contexts[ctx.substr(0,k)] + alpha * aux.size()));
+                
+		ctx = ctx.substr(1) + (char) tolower(c);
                 total++;
             }
             else{

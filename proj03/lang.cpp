@@ -58,20 +58,20 @@ int main(int argc, char* argv[]){
         if(c == '\n' or c == '\t') continue;
         
         if(ctx.length() == k + 1){
-            if (alphabet[ctx] > 0){
-                n_bits += -log2((double) (alpha + alphabet[ctx]) / (contexts[ctx.substr(0,k)] + alpha * aux.size()));
-            }
+            
+            n_bits += -log2((double) (alpha + alphabet[ctx]) / (contexts[ctx.substr(0,k)] + alpha * aux.size()));
+            
             ctx = ctx.substr(1) + (char) tolower(c);
             total++;
         }
         else{
-            ctx+=(char)c;
+            ctx+=(char)tolower(c);
         }
     }
 
     //double a = calculate(alphabet, alpha, contexts, fcm.getAlphabet(), total);
 
-    cout << "EStimated bits : " << n_bits/total << endl;
+    cout << "Estimated bits : " << n_bits/total << endl;
     
     return 0;
 }
